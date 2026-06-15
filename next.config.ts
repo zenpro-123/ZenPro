@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**" },
     ],
   },
+  // A stray package-lock.json in the home directory makes Turbopack infer
+  // the wrong workspace root; pin it to this project explicitly.
+  turbopack: {
+    root: __dirname,
+  },
 };
 
 // Sentry wrapper is a no-op build-time enhancer when SENTRY_AUTH_TOKEN /

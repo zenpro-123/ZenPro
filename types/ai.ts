@@ -1,8 +1,27 @@
+import type { ContentCategory } from "@/types/content";
+
 /** Structured AI insight attached to a content item. */
 export interface AIInsights {
   whatHappened: string;
   whyItMatters: string;
   implications: string;
+}
+
+export type DevelopmentImpact = "high" | "medium" | "low";
+
+/** A single entry in "Things You Should Know Today" — a clustered, scored, AI-synthesized development. */
+export interface TopDevelopment {
+  id: string;
+  title: string;
+  whatHappened: string;
+  whyItMatters: string;
+  implications: string;
+  impact: DevelopmentImpact;
+  category: ContentCategory;
+  source: string;
+  sourceUrl?: string;
+  /** Other sources covering the same story, when clustered. */
+  relatedSources?: string[];
 }
 
 export interface MorningDevelopment {

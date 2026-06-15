@@ -1,6 +1,11 @@
-import { getOpenAI, AI_MODEL } from "@/lib/openai/client";
+import { generateJSON } from "@/lib/ai/client";
 import type { MorningBrief, MorningDevelopment } from "@/types/ai";
 import type { TechArticle } from "@/types/content";
+
+interface MorningBriefResponse {
+  headline?: string;
+  developments?: Partial<MorningDevelopment>[];
+}
 
 interface MorningBriefContext {
   name?: string | null;
@@ -78,55 +83,36 @@ export async function generateMorningBrief(
   });
   const top = articles.slice(0, 8);
 
-  const openai = getOpenAI();
-  if (!openai || top.length === 0) {
+  if (top.length === 0) {
     return fallbackBrief(greeting, date, top);
   }
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: AI_MODEL,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: buildUserPrompt(top, context) },
-      ],
-    });
+  const parsed = await generateJSON<MorningBriefResponse>(SYSTEM_PROMPT, buildUserPrompt(top, context));
+  if (!parsed) return fallbackBrief(greeting, date, top);
 
-    const raw = completion.choices[0]?.message?.content;
-    if (!raw) return fallbackBrief(greeting, date, top);
+  const developments: MorningDevelopment[] = (parsed.developments ?? [])
+    .slice(0, 5)
+    .map((d, i) => ({
+      title: d.title ?? top[i]?.title ?? "Update",
+      summary: d.summary ?? "",
+      whyItMatters: d.whyItMatters ?? "",
+      category: d.category ?? "tech",
+      sourceUrl: top[i]?.url,
+    }));
 
-    const parsed = JSON.parse(raw) as {
-      headline?: string;
-      developments?: Partial<MorningDevelopment>[];
-    };
+  if (developments.length === 0) return fallbackBrief(greeting, date, top);
 
-    const developments: MorningDevelopment[] = (parsed.developments ?? [])
-      .slice(0, 5)
-      .map((d, i) => ({
-        title: d.title ?? top[i]?.title ?? "Update",
-        summary: d.summary ?? "",
-        whyItMatters: d.whyItMatters ?? "",
-        category: d.category ?? "tech",
-        sourceUrl: top[i]?.url,
-      }));
+  const readingTimeSeconds = developments.reduce(
+    (sum, d) => sum + estimateReadingTime(`${d.summary} ${d.whyItMatters}`),
+    0
+  );
 
-    if (developments.length === 0) return fallbackBrief(greeting, date, top);
-
-    const readingTimeSeconds = developments.reduce(
-      (sum, d) => sum + estimateReadingTime(`${d.summary} ${d.whyItMatters}`),
-      0
-    );
-
-    return {
-      greeting,
-      date,
-      headline: parsed.headline ?? "Your daily intelligence briefing is ready.",
-      developments,
-      readingTimeSeconds: Math.max(readingTimeSeconds, 30),
-      generatedAt: new Date().toISOString(),
-    };
-  } catch {
-    return fallbackBrief(greeting, date, top);
-  }
+  return {
+    greeting,
+    date,
+    headline: parsed.headline ?? "Your daily intelligence briefing is ready.",
+    developments,
+    readingTimeSeconds: Math.max(readingTimeSeconds, 30),
+    generatedAt: new Date().toISOString(),
+  };
 }
