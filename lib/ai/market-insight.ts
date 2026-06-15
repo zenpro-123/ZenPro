@@ -1,9 +1,14 @@
-import { getOpenAI, AI_MODEL } from "@/lib/openai/client";
+import { generateJSON } from "@/lib/ai/client";
 import { formatPercent } from "@/lib/utils/formatting";
 import type { MarketItem, MarketInsight } from "@/types/market";
 
 const SYSTEM_PROMPT = `You are ZenPro's markets analyst. Given a snapshot of index, crypto, commodity, and forex quotes, write a one-sentence summary of what's moving today and 2-4 short "watch items" (each a short phrase naming an asset and its move). Respond ONLY with JSON matching:
 {"summary": string, "watchItems": string[]}`;
+
+interface MarketInsightResponse {
+  summary?: string;
+  watchItems?: string[];
+}
 
 function buildPrompt(items: MarketItem[]): string {
   const lines = items
@@ -33,31 +38,14 @@ function fallbackInsight(items: MarketItem[]): MarketInsight {
  * back to a non-AI summary of the largest movers when OpenAI is unavailable.
  */
 export async function generateMarketInsight(items: MarketItem[]): Promise<MarketInsight> {
-  const openai = getOpenAI();
-  if (!openai || items.length === 0) return fallbackInsight(items);
+  if (items.length === 0) return fallbackInsight(items);
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: AI_MODEL,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: buildPrompt(items) },
-      ],
-    });
+  const parsed = await generateJSON<MarketInsightResponse>(SYSTEM_PROMPT, buildPrompt(items));
+  if (!parsed?.summary) return fallbackInsight(items);
 
-    const raw = completion.choices[0]?.message?.content;
-    if (!raw) return fallbackInsight(items);
-
-    const parsed = JSON.parse(raw) as { summary?: string; watchItems?: string[] };
-    if (!parsed.summary) return fallbackInsight(items);
-
-    return {
-      summary: parsed.summary,
-      watchItems: parsed.watchItems ?? [],
-      generatedAt: new Date().toISOString(),
-    };
-  } catch {
-    return fallbackInsight(items);
-  }
+  return {
+    summary: parsed.summary,
+    watchItems: parsed.watchItems ?? [],
+    generatedAt: new Date().toISOString(),
+  };
 }

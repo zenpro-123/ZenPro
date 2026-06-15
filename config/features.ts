@@ -81,6 +81,18 @@ export const FEATURES = {
     description: "Save for Later / collections",
     phase: "v1",
   },
+  WHAT_CHANGED: {
+    key: "WHAT_CHANGED",
+    enabled: flag("NEXT_PUBLIC_FF_WHAT_CHANGED", true),
+    description: "What Changed Since Yesterday — diff against the prior daily snapshot",
+    phase: "v1",
+  },
+  RECOMMENDED_FOR_YOU: {
+    key: "RECOMMENDED_FOR_YOU",
+    enabled: flag("NEXT_PUBLIC_FF_RECOMMENDED_FOR_YOU", true),
+    description: "Weighted recommendation engine personalized picks",
+    phase: "v1",
+  },
 
   // --- V2: Deferred ---
   EMBEDDINGS: {
