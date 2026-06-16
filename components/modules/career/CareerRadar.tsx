@@ -7,6 +7,7 @@ import { Briefcase } from "lucide-react";
 import { OpportunityCard } from "@/components/modules/career/OpportunityCard";
 import { CardGridSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -58,36 +59,38 @@ export function CareerRadar() {
   }, [data, type]);
 
   return (
-    <section className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">Career Radar</h2>
-          <p className="text-sm text-muted-foreground">Remote jobs and internships worth a look</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {data?.types && data.types.length > 1 && (
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="All types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
-                {data.types.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {TYPE_LABELS[t]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-          <Tabs value={mode} onValueChange={(v) => setMode(v as "quick" | "detailed")}>
-            <TabsList>
-              <TabsTrigger value="quick">Quick</TabsTrigger>
-              <TabsTrigger value="detailed">Detailed</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      </div>
+    <section className="space-y-5">
+      <SectionHeader
+        icon={Briefcase}
+        eyebrow="Career"
+        title="Career Radar"
+        subtitle="Remote jobs and internships worth a look"
+        actions={
+          <>
+            {data?.types && data.types.length > 1 && (
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="All types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  {data.types.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {TYPE_LABELS[t]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Tabs value={mode} onValueChange={(v) => setMode(v as "quick" | "detailed")}>
+              <TabsList>
+                <TabsTrigger value="quick">Quick</TabsTrigger>
+                <TabsTrigger value="detailed">Detailed</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </>
+        }
+      />
 
       {isLoading && <CardGridSkeleton count={6} />}
 
@@ -112,10 +115,10 @@ export function CareerRadar() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {opportunities.map((opportunity) => (
-            <motion.div key={opportunity.id} variants={staggerItem}>
+            <motion.div key={opportunity.id} variants={staggerItem} className="h-full">
               <OpportunityCard opportunity={opportunity} mode={mode} />
             </motion.div>
           ))}

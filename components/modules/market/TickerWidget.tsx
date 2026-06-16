@@ -13,7 +13,7 @@ export function TickerWidget({ item }: TickerWidgetProps) {
   const isUp = item.changePercent > 0;
   const isDown = item.changePercent < 0;
   const Icon = isUp ? TrendingUp : isDown ? TrendingDown : Minus;
-  const changeColor = isUp ? "text-emerald-400" : isDown ? "text-rose-400" : "text-muted-foreground";
+  const changeColor = isUp ? "text-positive" : isDown ? "text-negative" : "text-muted-foreground";
 
   return (
     <GlassCard className="flex w-40 flex-col gap-1.5 p-4">

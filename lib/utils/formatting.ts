@@ -50,3 +50,43 @@ export function truncate(text: string, maxLength: number): string {
 export function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
+
+/** Matches `<script>`/`<style>` blocks including their inner text. */
+const SCRIPT_STYLE_BLOCK = /<(script|style|noscript)\b[^>]*>[\s\S]*?<\/\1>/gi;
+/** Leftover inline JS config assignments, e.g. `window.HYPE_DESK_CONFIG = { … };`,
+ *  which survive when tags are stripped before the script body is removed. */
+const INLINE_JS_CONFIG = /\b(?:window|self|globalThis|document)\.[\w$.]+\s*=\s*\{[\s\S]*?\}\s*;?/g;
+
+const HTML_ENTITIES: Record<string, string> = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'",
+  "&#039;": "'",
+  "&apos;": "'",
+  "&nbsp;": " ",
+  "&hellip;": "…",
+  "&mdash;": "—",
+  "&ndash;": "–",
+};
+
+function decodeEntities(text: string): string {
+  return text.replace(/&[#\w]+;/g, (m) => HTML_ENTITIES[m.toLowerCase()] ?? m);
+}
+
+/**
+ * Clean an RSS/HTML snippet into a display-safe plain-text summary. Removes
+ * `<script>`/`<style>` blocks (and any inline JS config that leaks through
+ * pre-stripped feeds like The Verge), decodes common entities, collapses
+ * whitespace, and truncates on a word boundary.
+ */
+export function cleanSummary(input: string, maxLength = 320): string {
+  const text = decodeEntities(
+    input.replace(SCRIPT_STYLE_BLOCK, " ").replace(/<[^>]*>/g, " ")
+  )
+    .replace(INLINE_JS_CONFIG, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return truncate(text, maxLength);
+}

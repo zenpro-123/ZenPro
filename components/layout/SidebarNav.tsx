@@ -21,8 +21,11 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
 
   return (
     <div className="flex h-full flex-col">
-      <Link href="/" className="flex items-center gap-2 px-4 py-5 text-lg font-semibold tracking-tight">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+      <Link
+        href="/"
+        className="flex items-center gap-2.5 px-4 py-5 font-heading text-lg font-semibold tracking-tight"
+      >
+        <span className="ring-gradient flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-chart-2 text-white shadow-sm shadow-primary/30">
           <Sparkles className="h-4 w-4" />
         </span>
         ZenPro
@@ -38,13 +41,15 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
+                "group/nav relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-primary/15 text-primary"
+                  ? "ring-gradient bg-gradient-to-r from-primary/15 to-chart-2/10 text-foreground"
                   : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
               )}
             >
-              <Icon className="h-4 w-4" />
+              <Icon
+                className={cn("h-4 w-4 transition-colors", isActive && "text-primary")}
+              />
               {item.label}
             </Link>
           );

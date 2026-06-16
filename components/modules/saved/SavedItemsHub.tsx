@@ -8,6 +8,7 @@ import { Bookmark, Settings, Search } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { CardGridSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -72,7 +73,9 @@ export function SavedItemsHub() {
         className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
       >
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Saved Items</h2>
+          <h2 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">
+            Saved Items
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in to save articles, repos, and opportunities for later.
           </p>
@@ -88,22 +91,23 @@ export function SavedItemsHub() {
   const items = data?.data ?? [];
 
   return (
-    <section className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">Saved Items</h2>
-          <p className="text-sm text-muted-foreground">Everything you&apos;ve bookmarked, organized</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search saved items…"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              className="w-44 pl-8 sm:w-56"
-            />
-          </div>
+    <section className="space-y-5">
+      <SectionHeader
+        icon={Bookmark}
+        eyebrow="Library"
+        title="Saved Items"
+        subtitle="Everything you've bookmarked, organized"
+        actions={
+          <>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search saved items…"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                className="w-44 pl-8 sm:w-56"
+              />
+            </div>
           <Select value={collectionId} onValueChange={setCollectionId}>
             <SelectTrigger size="sm" className="text-xs">
               <SelectValue />
@@ -118,12 +122,13 @@ export function SavedItemsHub() {
               ))}
             </SelectContent>
           </Select>
-          <Button type="button" variant="outline" size="sm" onClick={() => setManagerOpen(true)}>
-            <Settings className="h-3.5 w-3.5" />
-            Manage Collections
-          </Button>
-        </div>
-      </div>
+            <Button type="button" variant="outline" size="sm" onClick={() => setManagerOpen(true)}>
+              <Settings className="h-3.5 w-3.5" />
+              Manage Collections
+            </Button>
+          </>
+        }
+      />
 
       {isLoading && <CardGridSkeleton count={6} />}
 
@@ -140,10 +145,10 @@ export function SavedItemsHub() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {items.map((item) => (
-            <motion.div key={item.id} variants={staggerItem}>
+            <motion.div key={item.id} variants={staggerItem} className="h-full">
               <SavedItemCard item={item} collections={collections} />
             </motion.div>
           ))}

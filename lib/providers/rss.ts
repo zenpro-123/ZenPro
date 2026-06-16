@@ -2,6 +2,7 @@ import Parser from "rss-parser";
 import { BaseProvider, type ProviderConfig, type ProviderResult } from "@/lib/providers/base";
 import { TECH_RSS_FEEDS } from "@/config/sources";
 import { contentHash, dedupeByTitle } from "@/lib/utils/deduplication";
+import { cleanSummary } from "@/lib/utils/formatting";
 import { CACHE_TTL } from "@/lib/utils/cache";
 import type { TechArticle } from "@/types/content";
 
@@ -66,7 +67,11 @@ export class TechRssProvider extends BaseProvider<TechArticle> {
     return (feedData.items ?? []).map((item) => {
       const title = item.title?.trim() ?? "Untitled";
       const url = item.link;
-      const summary = (item.contentSnippet ?? item.summary ?? "").trim();
+      // Prefer the richest raw field so `<script>`/`<style>` blocks are removed
+      // *with* their tags; fall back to the pre-stripped snippet.
+      const rawSummary =
+        item["content:encoded"] ?? item.content ?? item.contentSnippet ?? item.summary ?? "";
+      const summary = cleanSummary(rawSummary);
       const publishedAt = item.isoDate ?? item.pubDate ?? new Date().toISOString();
       const hash = contentHash(feed.id, title, url);
 

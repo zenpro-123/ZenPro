@@ -7,6 +7,7 @@ import { StickyNote } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { CardGridSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { NoteCard } from "@/components/modules/notes/NoteCard";
 import { staggerContainer, staggerItem } from "@/lib/motion";
@@ -45,7 +46,9 @@ export function KnowledgeNotesHub() {
         className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
       >
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Knowledge Notes</h2>
+          <h2 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">
+            Knowledge Notes
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in to jot down notes on articles, repos, and opportunities.
           </p>
@@ -60,11 +63,13 @@ export function KnowledgeNotesHub() {
   const notes = data?.data ?? [];
 
   return (
-    <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold tracking-tight">Knowledge Notes</h2>
-        <p className="text-sm text-muted-foreground">Your annotations across everything you&apos;ve read</p>
-      </div>
+    <section className="space-y-5">
+      <SectionHeader
+        icon={StickyNote}
+        eyebrow="Knowledge"
+        title="Knowledge Notes"
+        subtitle="Your annotations across everything you've read"
+      />
 
       {isLoading && <CardGridSkeleton count={4} />}
 
@@ -81,10 +86,10 @@ export function KnowledgeNotesHub() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {notes.map((note) => (
-            <motion.div key={note.id} variants={staggerItem}>
+            <motion.div key={note.id} variants={staggerItem} className="h-full">
               <NoteCard note={note} />
             </motion.div>
           ))}

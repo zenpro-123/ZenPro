@@ -22,10 +22,9 @@ export function GlassCard({
   return (
     <div
       className={cn(
-        "rounded-2xl",
+        "rounded-2xl ring-gradient surface-premium",
         strong ? "glass-strong" : "glass",
-        !isStatic &&
-          "transition-all duration-200 hover:border-white/20 hover:bg-white/[0.06]",
+        !isStatic && "glass-hover-lift",
         className
       )}
       {...props}

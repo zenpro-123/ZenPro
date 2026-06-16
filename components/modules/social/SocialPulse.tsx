@@ -6,6 +6,7 @@ import { Radio } from "lucide-react";
 import { TrendCard } from "@/components/modules/social/TrendCard";
 import { CardGridSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { staggerContainer, staggerItem } from "@/lib/motion";
 import { isEnabled } from "@/config/features";
 import type { SocialTrend } from "@/types/content";
@@ -39,11 +40,13 @@ export function SocialPulse() {
 
   if (!enabled) {
     return (
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">Social Pulse</h2>
-          <p className="text-sm text-muted-foreground">What&apos;s trending on X and Instagram</p>
-        </div>
+      <section className="space-y-5">
+        <SectionHeader
+          icon={Radio}
+          eyebrow="Social"
+          title="Social Pulse"
+          subtitle="What's trending on X and Instagram"
+        />
         <EmptyState
           icon={Radio}
           title="Coming in V2"
@@ -56,11 +59,13 @@ export function SocialPulse() {
   const trends = data?.data ?? [];
 
   return (
-    <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold tracking-tight">Social Pulse</h2>
-        <p className="text-sm text-muted-foreground">What&apos;s trending on X and Instagram</p>
-      </div>
+    <section className="space-y-5">
+      <SectionHeader
+        icon={Radio}
+        eyebrow="Social"
+        title="Social Pulse"
+        subtitle="What's trending on X and Instagram"
+      />
 
       {isLoading && <CardGridSkeleton count={3} />}
 
@@ -77,10 +82,10 @@ export function SocialPulse() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {trends.map((trend) => (
-            <motion.div key={trend.id} variants={staggerItem}>
+            <motion.div key={trend.id} variants={staggerItem} className="h-full">
               <TrendCard trend={trend} />
             </motion.div>
           ))}

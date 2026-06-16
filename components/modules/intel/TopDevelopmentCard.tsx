@@ -58,7 +58,7 @@ export function TopDevelopmentCard({ development, index }: TopDevelopmentCardPro
               )}
             </div>
           </div>
-          <p className="text-sm leading-relaxed text-muted-foreground">{development.whatHappened}</p>
+          <p className="line-clamp-4 text-sm leading-relaxed text-muted-foreground">{development.whatHappened}</p>
           <p className="text-xs text-foreground/70">
             <span className="font-medium text-primary">Why it matters: </span>
             {development.whyItMatters}

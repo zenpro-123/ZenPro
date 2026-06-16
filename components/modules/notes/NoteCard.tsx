@@ -48,7 +48,7 @@ export function NoteCard({ note }: NoteCardProps) {
   });
 
   return (
-    <GlassCard className="flex flex-col gap-3 p-5">
+    <GlassCard className="flex h-full flex-col gap-3 p-5">
       <div className="flex items-start justify-between gap-2">
         {note.target.url ? (
           <a
@@ -119,7 +119,9 @@ export function NoteCard({ note }: NoteCardProps) {
       {editing ? (
         <Textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={4} autoFocus />
       ) : (
-        <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">{note.body}</p>
+        <p className="line-clamp-[8] text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
+          {note.body}
+        </p>
       )}
 
       <p className="mt-auto text-xs text-muted-foreground/70">{formatRelativeTime(note.updatedAt)}</p>

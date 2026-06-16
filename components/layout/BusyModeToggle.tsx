@@ -4,12 +4,31 @@ import { Zap } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useUIStore } from "@/stores/uiStore";
+import { useUserStore } from "@/stores/userStore";
 import { cn } from "@/lib/utils";
 
 /** Module 15 — one-click toggle that collapses the dashboard to a 60-second summary. */
 export function BusyModeToggle() {
   const busyMode = useUIStore((s) => s.busyMode);
-  const toggleBusyMode = useUIStore((s) => s.toggleBusyMode);
+  const setBusyMode = useUIStore((s) => s.setBusyMode);
+  const profile = useUserStore((s) => s.profile);
+  const updateProfile = useUserStore((s) => s.updateProfile);
+
+  function handleChange(next: boolean) {
+    setBusyMode(next);
+
+    // Persist per-user when signed in; anonymous users keep ephemeral UI state.
+    if (profile) {
+      updateProfile({ busyMode: next });
+      void fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ busyMode: next }),
+      }).catch(() => {
+        /* best-effort; UI state already updated */
+      });
+    }
+  }
 
   return (
     <div
@@ -22,7 +41,7 @@ export function BusyModeToggle() {
       <Label htmlFor="busy-mode" className="cursor-pointer text-xs font-medium">
         Busy mode
       </Label>
-      <Switch id="busy-mode" checked={busyMode} onCheckedChange={toggleBusyMode} />
+      <Switch id="busy-mode" checked={busyMode} onCheckedChange={handleChange} />
     </div>
   );
 }

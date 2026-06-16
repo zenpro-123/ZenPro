@@ -7,6 +7,7 @@ import { Compass } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { CardGridSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { RecommendationCard } from "@/components/modules/recommendations/RecommendationCard";
 import { staggerContainer, staggerItem } from "@/lib/motion";
@@ -46,7 +47,9 @@ export function RecommendedForYou() {
         className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8"
       >
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Recommended For You</h2>
+          <h2 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">
+            Recommended For You
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in to get picks tailored to your interests and reading habits.
           </p>
@@ -61,11 +64,13 @@ export function RecommendedForYou() {
   const recommendations = data?.data ?? [];
 
   return (
-    <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold tracking-tight">Recommended For You</h2>
-        <p className="text-sm text-muted-foreground">Picks based on your interests and reading habits</p>
-      </div>
+    <section className="space-y-5">
+      <SectionHeader
+        icon={Compass}
+        eyebrow="For you"
+        title="Recommended For You"
+        subtitle="Picks based on your interests and reading habits"
+      />
 
       {(!profile || isLoading) && <CardGridSkeleton count={3} />}
 
@@ -82,10 +87,10 @@ export function RecommendedForYou() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {recommendations.map((rec) => (
-            <motion.div key={rec.item.id} variants={staggerItem}>
+            <motion.div key={rec.item.id} variants={staggerItem} className="h-full">
               <RecommendationCard recommendation={rec} />
             </motion.div>
           ))}

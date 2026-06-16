@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { History } from "lucide-react";
 import { CardGridSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { ChangeItemRow } from "@/components/modules/changed/ChangeItemRow";
 import { staggerContainer, staggerItem } from "@/lib/motion";
 import { isEnabled } from "@/config/features";
@@ -36,13 +37,13 @@ export function WhatChanged() {
   const changes = data?.data ?? [];
 
   return (
-    <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold tracking-tight">What Changed Since Yesterday</h2>
-        <p className="text-sm text-muted-foreground">
-          New stories, rising repos, opportunities, and market moves
-        </p>
-      </div>
+    <section className="space-y-5">
+      <SectionHeader
+        icon={History}
+        eyebrow="Since yesterday"
+        title="What Changed Since Yesterday"
+        subtitle="New stories, rising repos, opportunities, and market moves"
+      />
 
       {isLoading && <CardGridSkeleton count={4} />}
 

@@ -56,12 +56,15 @@ export function ThingsYouShouldKnowToday() {
   );
 
   return (
-    <GlassCard strong className="relative overflow-hidden p-6 sm:p-8">
-      <div className="bg-aurora absolute inset-0 opacity-60" />
+    <GlassCard strong className="relative overflow-hidden p-6 sm:p-9">
+      <div className="bg-aurora absolute inset-0 opacity-45" />
       <div className="relative">
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <p className="text-sm font-medium text-primary">Things you should know today</p>
-          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+          <span className="eyebrow">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            Things you should know today
+          </span>
+          <h2 className="text-gradient mt-3 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-[2.6rem] sm:leading-[1.05]">
             Today&apos;s top developments
           </h2>
           <div className="mt-4">
@@ -69,7 +72,7 @@ export function ThingsYouShouldKnowToday() {
           </div>
         </motion.div>
 
-        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="mt-6 space-y-3">
+        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="mt-7 space-y-2.5">
           {stories.map((story, i) => (
             <motion.div key={story.id} variants={staggerItem}>
               <TopDevelopmentCard development={story} index={i} />

@@ -7,6 +7,7 @@ import { GitFork } from "lucide-react";
 import { RepoCard } from "@/components/modules/github/RepoCard";
 import { CardGridSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { staggerContainer, staggerItem } from "@/lib/motion";
 import type { GitHubRepo } from "@/types/content";
@@ -36,21 +37,21 @@ export function GitHubRadar() {
   const repos = data?.data ?? [];
 
   return (
-    <section className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">GitHub Radar</h2>
-          <p className="text-sm text-muted-foreground">
-            New repos gaining stars fast over the last week
-          </p>
-        </div>
-        <Tabs value={mode} onValueChange={(v) => setMode(v as "quick" | "detailed")}>
-          <TabsList>
-            <TabsTrigger value="quick">Quick</TabsTrigger>
-            <TabsTrigger value="detailed">Detailed</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+    <section className="space-y-5">
+      <SectionHeader
+        icon={GitFork}
+        eyebrow="Open source"
+        title="GitHub Radar"
+        subtitle="New repos gaining stars fast over the last week"
+        actions={
+          <Tabs value={mode} onValueChange={(v) => setMode(v as "quick" | "detailed")}>
+            <TabsList>
+              <TabsTrigger value="quick">Quick</TabsTrigger>
+              <TabsTrigger value="detailed">Detailed</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
+      />
 
       {isLoading && <CardGridSkeleton count={6} />}
 
@@ -75,10 +76,10 @@ export function GitHubRadar() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {repos.map((repo) => (
-            <motion.div key={repo.id} variants={staggerItem}>
+            <motion.div key={repo.id} variants={staggerItem} className="h-full">
               <RepoCard repo={repo} mode={mode} />
             </motion.div>
           ))}

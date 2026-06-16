@@ -7,6 +7,7 @@ import { TickerWidget } from "@/components/modules/market/TickerWidget";
 import { TickerSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { staggerContainer, staggerItem } from "@/lib/motion";
 import type { MarketInsight, MarketItem } from "@/types/market";
@@ -35,11 +36,13 @@ export function MarketPulse() {
   const items = data?.data ?? [];
 
   return (
-    <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold tracking-tight">Market Pulse</h2>
-        <p className="text-sm text-muted-foreground">Indices, crypto, commodities, and forex</p>
-      </div>
+    <section className="space-y-5">
+      <SectionHeader
+        icon={LineChart}
+        eyebrow="Markets"
+        title="Market Pulse"
+        subtitle="Indices, crypto, commodities, and forex"
+      />
 
       {isLoading && <TickerSkeleton count={7} />}
 
