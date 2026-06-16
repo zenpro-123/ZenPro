@@ -81,6 +81,12 @@ export const FEATURES = {
     description: "Save for Later / collections",
     phase: "v1",
   },
+  KNOWLEDGE_NOTES: {
+    key: "KNOWLEDGE_NOTES",
+    enabled: flag("NEXT_PUBLIC_FF_KNOWLEDGE_NOTES", true),
+    description: "Knowledge Notes — personal annotations on saved content",
+    phase: "v1",
+  },
   WHAT_CHANGED: {
     key: "WHAT_CHANGED",
     enabled: flag("NEXT_PUBLIC_FF_WHAT_CHANGED", true),

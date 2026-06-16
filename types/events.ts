@@ -9,7 +9,13 @@ export type EventType =
   | "development_click"
   | "change_item_click"
   | "recommendation_click"
-  | "recommendation_dismiss";
+  | "recommendation_dismiss"
+  | "item_save"
+  | "item_unsave"
+  | "collection_create"
+  | "note_create"
+  | "note_update"
+  | "note_delete";
 
 export const EVENT_TYPES: readonly EventType[] = [
   "card_view",
@@ -18,6 +24,12 @@ export const EVENT_TYPES: readonly EventType[] = [
   "change_item_click",
   "recommendation_click",
   "recommendation_dismiss",
+  "item_save",
+  "item_unsave",
+  "collection_create",
+  "note_create",
+  "note_update",
+  "note_delete",
 ];
 
 export interface TrackEventPayload {

@@ -4,7 +4,9 @@ import { GlassCard } from "@/components/shared/GlassCard";
 import { SourceBadge } from "@/components/shared/SourceBadge";
 import { ReadingTimeBadge } from "@/components/shared/ReadingTimeBadge";
 import { AISummaryBlock } from "@/components/shared/AISummaryBlock";
+import { CardActions } from "@/components/shared/CardActions";
 import { formatRelativeTime, truncate } from "@/lib/utils/formatting";
+import { toSaveItemPayload } from "@/lib/content/payload";
 import type { TechArticle } from "@/types/content";
 
 interface ArticleCardProps {
@@ -25,10 +27,13 @@ export function ArticleCard({ article, mode }: ArticleCardProps) {
       )}
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-center justify-between gap-2">
-          <SourceBadge source={article.source} />
-          {article.metadata.readingTimeSeconds && (
-            <ReadingTimeBadge seconds={article.metadata.readingTimeSeconds} />
-          )}
+          <div className="flex items-center gap-2">
+            <SourceBadge source={article.source} />
+            {article.metadata.readingTimeSeconds && (
+              <ReadingTimeBadge seconds={article.metadata.readingTimeSeconds} />
+            )}
+          </div>
+          <CardActions item={toSaveItemPayload(article)} />
         </div>
 
         <a

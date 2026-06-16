@@ -2,8 +2,10 @@ import Image from "next/image";
 import { ArrowUpRight, Calendar, MapPin, Wallet } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { AISummaryBlock } from "@/components/shared/AISummaryBlock";
+import { CardActions } from "@/components/shared/CardActions";
 import { Badge } from "@/components/ui/badge";
 import { formatRelativeTime, truncate } from "@/lib/utils/formatting";
+import { toSaveItemPayload } from "@/lib/content/payload";
 import type { CareerOpportunity } from "@/types/content";
 
 interface OpportunityCardProps {
@@ -42,9 +44,12 @@ export function OpportunityCard({ opportunity, mode }: OpportunityCardProps) {
           )}
           <span className="text-xs text-muted-foreground">{metadata.company}</span>
         </div>
-        <Badge variant="secondary" className="text-xs">
-          {TYPE_LABELS[metadata.type]}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-xs">
+            {TYPE_LABELS[metadata.type]}
+          </Badge>
+          <CardActions item={toSaveItemPayload(opportunity)} />
+        </div>
       </div>
 
       <a
