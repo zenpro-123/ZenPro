@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Newspaper } from "lucide-react";
+import { ChevronDown, Newspaper } from "lucide-react";
 import { ArticleCard } from "@/components/modules/tech/ArticleCard";
 import { CardGridSkeleton } from "@/components/shared/SkeletonLoader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SectionHeader } from "@/components/shared/SectionHeader";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -31,10 +32,14 @@ async function fetchTech(): Promise<TechResponse> {
   return res.json();
 }
 
+/** How many article tiles to reveal per page / "Read More" click. */
+const PAGE_SIZE = 18;
+
 /** Module 4 — aggregated tech news with Quick/Detailed reading modes and source filtering. */
 export function TechIntelligence() {
   const [mode, setMode] = useState<"quick" | "detailed">("quick");
   const [source, setSource] = useState("all");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["content-tech"],
@@ -48,6 +53,15 @@ export function TechIntelligence() {
     return data.data.filter((a) => a.source === source);
   }, [data, source]);
 
+  // changing the source filter resets back to the first page
+  function handleSourceChange(value: string) {
+    setSource(value);
+    setVisibleCount(PAGE_SIZE);
+  }
+
+  const visibleArticles = articles.slice(0, visibleCount);
+  const remaining = articles.length - visibleArticles.length;
+
   return (
     <section className="space-y-5">
       <SectionHeader
@@ -58,7 +72,7 @@ export function TechIntelligence() {
         actions={
           <>
             {data?.sources && data.sources.length > 0 && (
-              <Select value={source} onValueChange={setSource}>
+              <Select value={source} onValueChange={handleSourceChange}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All sources" />
                 </SelectTrigger>
@@ -101,18 +115,36 @@ export function TechIntelligence() {
       )}
 
       {articles.length > 0 && (
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-        >
-          {articles.map((article) => (
-            <motion.div key={article.id} variants={staggerItem} className="h-full">
-              <ArticleCard article={article} mode={mode} />
-            </motion.div>
-          ))}
-        </motion.div>
+        <>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          >
+            {visibleArticles.map((article) => (
+              <motion.div key={article.id} variants={staggerItem} className="h-full">
+                <ArticleCard article={article} mode={mode} />
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {remaining > 0 && (
+            <div className="flex justify-center pt-1">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+              >
+                Read more
+                <span className="text-muted-foreground">
+                  {Math.min(PAGE_SIZE, remaining)} more
+                </span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </section>
   );
