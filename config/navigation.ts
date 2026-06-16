@@ -1,6 +1,7 @@
 import {
   Home,
   Bookmark,
+  StickyNote,
   Activity,
   Radio,
   Rocket,
@@ -24,6 +25,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Home", icon: Home },
   ...(FEATURES.SAVED_ITEMS.enabled ? [{ href: "/saved", label: "Saved", icon: Bookmark }] : []),
+  ...(FEATURES.KNOWLEDGE_NOTES.enabled ? [{ href: "/notes", label: "Notes", icon: StickyNote }] : []),
 ];
 
 export interface ComingSoonItem {

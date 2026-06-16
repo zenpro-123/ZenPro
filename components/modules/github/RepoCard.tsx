@@ -2,8 +2,10 @@ import Image from "next/image";
 import { ArrowUpRight, GitFork, Star, TrendingUp } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { AISummaryBlock } from "@/components/shared/AISummaryBlock";
+import { CardActions } from "@/components/shared/CardActions";
 import { Badge } from "@/components/ui/badge";
 import { formatCompactNumber, formatRelativeTime, truncate } from "@/lib/utils/formatting";
+import { toSaveItemPayload } from "@/lib/content/payload";
 import type { GitHubRepo } from "@/types/content";
 
 interface RepoCardProps {
@@ -32,11 +34,14 @@ export function RepoCard({ repo, mode }: RepoCardProps) {
           )}
           <span className="text-xs text-muted-foreground">{owner}</span>
         </div>
-        {repo.metadata.language && (
-          <Badge variant="secondary" className="text-xs">
-            {repo.metadata.language}
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {repo.metadata.language && (
+            <Badge variant="secondary" className="text-xs">
+              {repo.metadata.language}
+            </Badge>
+          )}
+          <CardActions item={toSaveItemPayload(repo)} />
+        </div>
       </div>
 
       <a

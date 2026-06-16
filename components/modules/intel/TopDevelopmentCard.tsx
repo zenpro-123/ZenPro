@@ -4,8 +4,10 @@ import { ArrowUpRight } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
 import { SourceBadge } from "@/components/shared/SourceBadge";
 import { ImpactBadge } from "@/components/shared/ImpactBadge";
+import { CardActions } from "@/components/shared/CardActions";
 import { useTrackEvent } from "@/lib/events/useTrackEvent";
 import type { TopDevelopment } from "@/types/ai";
+import type { SaveItemPayload } from "@/types/saved";
 
 interface TopDevelopmentCardProps {
   development: TopDevelopment;
@@ -24,6 +26,14 @@ export function TopDevelopmentCard({ development, index }: TopDevelopmentCardPro
     });
   }
 
+  const savePayload: SaveItemPayload = {
+    contentHash: development.id,
+    source: development.source,
+    category: development.category,
+    title: development.title,
+    url: development.sourceUrl,
+  };
+
   return (
     <GlassCard className="p-4">
       <div className="flex items-start gap-3">
@@ -33,17 +43,20 @@ export function TopDevelopmentCard({ development, index }: TopDevelopmentCardPro
         <div className="flex-1 space-y-1.5">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-sm font-medium leading-snug">{development.title}</h3>
-            {development.sourceUrl && (
-              <a
-                href={development.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleClick}
-                className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </a>
-            )}
+            <div className="flex shrink-0 items-center gap-0.5">
+              <CardActions item={savePayload} />
+              {development.sourceUrl && (
+                <a
+                  href={development.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleClick}
+                  className="text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </a>
+              )}
+            </div>
           </div>
           <p className="text-sm leading-relaxed text-muted-foreground">{development.whatHappened}</p>
           <p className="text-xs text-foreground/70">
