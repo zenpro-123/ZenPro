@@ -37,6 +37,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${geistMono.variable} ${spaceGrotesk.variable} dark h-full antialiased`}
       style={{ colorScheme: "dark" }}
+      suppressHydrationWarning
     >
       <body className="min-h-full bg-background text-foreground font-sans">
         <Providers>{children}</Providers>

@@ -47,6 +47,11 @@ const STATUS_ACCENT: Record<OpportunityStatus, string> = {
   archived: "bg-muted-foreground/30",
 };
 
+const STATUS_ORDER: Record<OpportunityStatus, number> = OPPORTUNITY_STATUSES.reduce(
+  (acc, status, i) => ({ ...acc, [status]: i }),
+  {} as Record<OpportunityStatus, number>
+);
+
 /** Phase 3B — manual job-application tracker (lightweight CRM, no scraping/AI). */
 export function PlacementTracker() {
   const enabled = isEnabled("PLACEMENT_TRACKER");
@@ -83,11 +88,12 @@ export function PlacementTracker() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["placement"] }),
   });
 
-  const grouped = useMemo(() => {
-    const map = new Map<OpportunityStatus, OpportunityEntry[]>();
-    for (const status of OPPORTUNITY_STATUSES) map.set(status, []);
-    for (const entry of data?.data ?? []) map.get(entry.status)?.push(entry);
-    return map;
+  const entries = useMemo(() => {
+    return [...(data?.data ?? [])].sort(
+      (a, b) =>
+        STATUS_ORDER[a.status] - STATUS_ORDER[b.status] ||
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
   }, [data]);
 
   if (!enabled) return null;
@@ -113,8 +119,6 @@ export function PlacementTracker() {
     );
   }
 
-  const total = data?.data.length ?? 0;
-
   return (
     <section className="space-y-6">
       <SectionHeader
@@ -136,13 +140,7 @@ export function PlacementTracker() {
         }
       />
 
-      {isLoading && (
-        <div className="grid gap-4 md:grid-cols-3">
-          <Skeleton className="h-48 rounded-2xl" />
-          <Skeleton className="h-48 rounded-2xl" />
-          <Skeleton className="h-48 rounded-2xl" />
-        </div>
-      )}
+      {isLoading && <Skeleton className="h-64 w-full rounded-2xl" />}
 
       {isError && (
         <EmptyState
@@ -152,7 +150,7 @@ export function PlacementTracker() {
         />
       )}
 
-      {!isLoading && !isError && total === 0 && (
+      {!isLoading && !isError && entries.length === 0 && (
         <EmptyState
           icon={Building2}
           title="No opportunities yet"
@@ -172,66 +170,80 @@ export function PlacementTracker() {
         />
       )}
 
-      {!isLoading && !isError && total > 0 && (
-        <div className="flex gap-4 overflow-x-auto pb-2">
-          {OPPORTUNITY_STATUSES.map((status) => {
-            const entries = grouped.get(status) ?? [];
-            return (
-              <div key={status} className="w-72 shrink-0 space-y-3">
-                <div className="flex items-center gap-2 px-1">
-                  <span className={cn("h-2 w-2 rounded-full", STATUS_ACCENT[status])} />
-                  <h3 className="text-sm font-semibold">{STATUS_LABELS[status]}</h3>
-                  <span className="text-xs text-muted-foreground">{entries.length}</span>
-                </div>
-
-                <div className="space-y-2.5">
-                  {entries.map((entry) => (
-                    <GlassCard key={entry.id} className="space-y-2 p-3.5">
-                      <div className="flex items-start justify-between gap-2">
-                        {entry.url ? (
-                          <a
-                            href={entry.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group/link flex items-start gap-1 text-sm font-semibold leading-snug transition-colors hover:text-primary"
-                          >
-                            {entry.title}
-                            <ArrowUpRight className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground transition-colors group-hover/link:text-primary" />
-                          </a>
-                        ) : (
-                          <span className="text-sm font-semibold leading-snug">{entry.title}</span>
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-                        {entry.company && <span>{entry.company}</span>}
-                        {entry.opportunityType && (
-                          <Badge variant="secondary">{entry.opportunityType}</Badge>
-                        )}
-                      </div>
-
-                      {entry.notes && (
-                        <p className="line-clamp-2 text-xs text-muted-foreground/80">{entry.notes}</p>
-                      )}
-
-                      <div className="flex items-center gap-1 pt-0.5">
-                        <Select
-                          value={entry.status}
-                          onValueChange={(v) =>
-                            updateStatus.mutate({ id: entry.id, status: v as OpportunityStatus })
-                          }
+      {!isLoading && !isError && entries.length > 0 && (
+        <GlassCard className="overflow-hidden p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border/50 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <th className="px-4 py-3 text-center">Role</th>
+                  <th className="px-4 py-3 text-center">Company</th>
+                  <th className="px-4 py-3 text-center">Type</th>
+                  <th className="px-4 py-3 text-center">Notes</th>
+                  <th className="px-4 py-3 text-center">Status</th>
+                  <th className="px-4 py-3 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {entries.map((entry) => (
+                  <tr
+                    key={entry.id}
+                    className="border-b border-border/30 align-middle transition-colors last:border-0 hover:bg-white/[0.02]"
+                  >
+                    <td className="px-4 py-3 text-center font-medium">
+                      {entry.url ? (
+                        <a
+                          href={entry.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group/link inline-flex items-center justify-center gap-1 transition-colors hover:text-primary"
                         >
-                          <SelectTrigger className="h-7 flex-1 text-xs">
+                          {entry.title}
+                          <ArrowUpRight className="h-3 w-3 shrink-0 text-muted-foreground transition-colors group-hover/link:text-primary" />
+                        </a>
+                      ) : (
+                        entry.title
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center text-muted-foreground">
+                      {entry.company || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {entry.opportunityType ? (
+                        <Badge variant="secondary">{entry.opportunityType}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="max-w-xs px-4 py-3 text-center text-xs text-muted-foreground/80">
+                      <span className="line-clamp-2">{entry.notes || "—"}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <Select
+                        value={entry.status}
+                        onValueChange={(v) =>
+                          updateStatus.mutate({ id: entry.id, status: v as OpportunityStatus })
+                        }
+                      >
+                        <SelectTrigger className="mx-auto h-8 w-36 text-xs">
+                          <span className="flex items-center gap-1.5">
+                            <span
+                              className={cn("h-1.5 w-1.5 rounded-full", STATUS_ACCENT[entry.status])}
+                            />
                             <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {OPPORTUNITY_STATUSES.map((s) => (
-                              <SelectItem key={s} value={s}>
-                                {STATUS_LABELS[s]}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {OPPORTUNITY_STATUSES.map((s) => (
+                            <SelectItem key={s} value={s}>
+                              {STATUS_LABELS[s]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center gap-0.5">
                         <Button
                           type="button"
                           variant="ghost"
@@ -254,19 +266,13 @@ export function PlacementTracker() {
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
-                    </GlassCard>
-                  ))}
-
-                  {entries.length === 0 && (
-                    <p className="rounded-xl border border-dashed border-border/50 px-3 py-4 text-center text-xs text-muted-foreground/60">
-                      Nothing here yet
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </GlassCard>
       )}
 
       <OpportunityDialog open={dialogOpen} onOpenChange={setDialogOpen} entry={editing} />
