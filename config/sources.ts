@@ -6,10 +6,11 @@ export const TECH_RSS_FEEDS = [
   { id: "hackernews", name: "Hacker News", url: "https://hnrss.org/frontpage" },
 ] as const;
 
-/** Learning sources (Module 17 — deferred to V2, kept here for the provider registry). */
+/** Learning sources (Phase 3B — tutorials & educational articles). */
 export const LEARNING_RSS_FEEDS = [
   { id: "devto", name: "Dev.to", url: "https://dev.to/feed" },
   { id: "freecodecamp", name: "freeCodeCamp", url: "https://www.freecodecamp.org/news/rss/" },
+  { id: "hackernews", name: "Hacker News", url: "https://hnrss.org/frontpage" },
 ] as const;
 
 /** GitHub Search API config for trending repos (Module 12). */
@@ -39,6 +40,11 @@ export const MARKET_SYMBOLS = {
   ],
   forex: [{ symbol: "INR=X", displaySymbol: "USD/INR", name: "US Dollar / Indian Rupee" }],
 } as const;
+
+/** Tool Spotlight sources (Phase 3B) — Product Hunt's public Atom feed (no auth). */
+export const PRODUCT_HUNT_FEEDS = [
+  { id: "producthunt", name: "Product Hunt", url: "https://www.producthunt.com/feed" },
+] as const;
 
 /** Career data sources (Module 10). */
 export const CAREER_SOURCES = {

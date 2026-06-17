@@ -83,3 +83,25 @@ export interface SocialTrendMetadata {
 }
 
 export type SocialTrend = ContentItem<SocialTrendMetadata> & { category: "social" };
+
+export type ToolCategory =
+  | "ai"
+  | "developer"
+  | "design"
+  | "productivity"
+  | "marketing"
+  | "other";
+
+export interface ToolMetadata {
+  tagline?: string;
+  toolCategory: ToolCategory;
+}
+
+export type Tool = ContentItem<ToolMetadata> & { category: "tools" };
+
+export interface LearningArticleMetadata {
+  excerpt?: string;
+  readingTimeSeconds?: number;
+}
+
+export type LearningArticle = ContentItem<LearningArticleMetadata> & { category: "learning" };

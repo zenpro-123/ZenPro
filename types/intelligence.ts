@@ -42,6 +42,22 @@ export interface DailySnapshot {
   generatedAt: string;
 }
 
+/** A deterministic 7-day executive briefing aggregated from `daily_snapshots`. */
+export interface WeeklyReview {
+  weekStart: string;
+  weekEnd: string;
+  daysCovered: number;
+  biggestStories: TopDevelopment[];
+  topRepositories: SnapshotRepo[];
+  topOpportunities: SnapshotOpportunity[];
+  keyTrends: (SnapshotTrend & { mentions: number })[];
+  marketSummary: {
+    items: MarketItem[];
+    insight: MarketInsight;
+  } | null;
+  generatedAt: string;
+}
+
 export type ChangeType = "new_story" | "rising_repo" | "new_opportunity" | "market_move" | "emerging_trend";
 
 /** A single entry in "What Changed Since Yesterday". */
