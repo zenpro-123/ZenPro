@@ -22,7 +22,7 @@ export function UserHydrator({ profile, preferences }: UserHydratorProps) {
     setHydrated(true);
     // Seed shell UI state from the saved profile so the Busy mode toggle reflects
     // the user's persisted choice on load.
-    useUIStore.getState().setBusyMode(profile?.busyMode ?? false);
+    useUIStore.getState().seedBusyMode(profile?.busyMode ?? false);
   }, [profile, preferences, setProfile, setPreferences, setHydrated]);
 
   return null;

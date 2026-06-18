@@ -10,9 +10,10 @@ interface NoteRow {
   content_item_id: string | null;
   opportunity_id: string | null;
   body: string;
+  tags: string[] | null;
   created_at: string;
   updated_at: string;
-  content: { title: string; url: string | null } | null;
+  content: { title: string; url: string | null; category: string | null } | null;
 }
 
 function mapRow(row: NoteRow): NoteWithTarget {
@@ -22,11 +23,13 @@ function mapRow(row: NoteRow): NoteWithTarget {
     contentItemId: row.content_item_id,
     opportunityId: row.opportunity_id,
     body: row.body,
+    tags: row.tags ?? [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     target: {
       title: row.content?.title ?? "Untitled",
       url: row.content?.url ?? null,
+      category: row.content?.category ?? null,
     },
   };
 }
@@ -44,6 +47,8 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const contentItemId = searchParams.get("contentItemId");
   const contentHash = searchParams.get("contentHash");
+  const tag = searchParams.get("tag");
+  const search = searchParams.get("q")?.trim();
 
   let resolvedContentItemId = contentItemId;
 
@@ -67,13 +72,21 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from("notes")
-    .select("*, content:content_items(title, url)")
+    .select("*, content:content_items(title, url, category)")
     .eq("user_id", user.id)
     .is("opportunity_id", null)
     .order("created_at", { ascending: false });
 
   if (resolvedContentItemId) {
     query = query.eq("content_item_id", resolvedContentItemId);
+  }
+
+  if (tag) {
+    query = query.contains("tags", [tag]);
+  }
+
+  if (search && search.length >= 2) {
+    query = query.or(`body.ilike.%${search}%`);
   }
 
   const { data, error } = await query;
@@ -95,7 +108,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { item?: SaveItemPayload; body?: string };
+  let body: { item?: SaveItemPayload; body?: string; tags?: string[] };
   try {
     body = await request.json();
   } catch {
@@ -106,6 +119,8 @@ export async function POST(request: NextRequest) {
   if (!noteBody) {
     return NextResponse.json({ error: "Note body is required" }, { status: 400 });
   }
+
+  const tags = (body.tags ?? []).map((t) => t.trim().toLowerCase()).filter(Boolean);
 
   const item = body.item;
   if (!item || !item.contentHash || !item.source || !item.category || !item.title) {
@@ -132,8 +147,9 @@ export async function POST(request: NextRequest) {
       content_item_id: contentItemId,
       opportunity_id: null,
       body: noteBody,
+      tags,
     })
-    .select("*, content:content_items(title, url)")
+    .select("*, content:content_items(title, url, category)")
     .single();
 
   if (error) {

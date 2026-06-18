@@ -11,6 +11,11 @@ import { useEffect, useRef } from "react";
  * the page scrolls and reveals different patterns the further down you go. Canvas
  * 2D, token-driven palette, purely decorative. Renders a single static frame for
  * reduced-motion users.
+ *
+ * Loading stays jitter-free because node management is *incremental*: existing
+ * particles keep their positions as the page grows (fonts swapping in, data
+ * streaming) and we only add/trim to match the new area — never a full reshuffle.
+ * Theme changes recolor the existing field in place instead of rebuilding it.
  */
 
 /** Resolve a CSS color (incl. oklch()) to an "r,g,b" string via a 1×1 canvas. */
@@ -32,7 +37,8 @@ interface Node {
   y: number;
   vx: number;
   vy: number;
-  c: string;
+  /** index into the palette — lets a theme change recolor in place */
+  ci: number;
   r: number;
 }
 
@@ -42,8 +48,29 @@ const PARALLAX = 0.6; // background scrolls slower than content for depth
 const AREA_PER_NODE = 10000; // smaller → denser field (≈ one node per this many px²)
 const MAX_NODES = 3200; // safety cap for extremely tall pages
 
-export function ConstellationField() {
+interface ConstellationFieldProps {
+  /** Soften the network for a light canvas (colored nodes on white look harsh at full strength). */
+  isLight?: boolean;
+}
+
+export function ConstellationField({ isLight = false }: ConstellationFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Live theme state read by the animation loop without restarting it.
+  const dimRef = useRef(isLight ? 0.5 : 1);
+  const paletteRef = useRef<string[]>([]);
+
+  // Keep the palette + dim factor in sync with the theme. This runs on mount and
+  // whenever `isLight` flips — recoloring the existing field in place rather than
+  // tearing down the animation and reshuffling every node.
+  useEffect(() => {
+    dimRef.current = isLight ? 0.5 : 1;
+    const styles = getComputedStyle(document.documentElement);
+    paletteRef.current = [
+      resolveColor(styles.getPropertyValue("--primary"), "#8b5cf6"),
+      resolveColor(styles.getPropertyValue("--chart-2"), "#34d399"),
+      resolveColor(styles.getPropertyValue("--chart-5"), "#22d3ee"),
+    ];
+  }, [isLight]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -53,17 +80,10 @@ export function ConstellationField() {
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const styles = getComputedStyle(document.documentElement);
-    const palette = [
-      resolveColor(styles.getPropertyValue("--primary"), "#8b5cf6"),
-      resolveColor(styles.getPropertyValue("--chart-2"), "#34d399"),
-      resolveColor(styles.getPropertyValue("--chart-5"), "#22d3ee"),
-    ];
-
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     let vw = 0;
     let fieldHeight = 0;
-    let nodes: Node[] = [];
+    const nodes: Node[] = [];
 
     const sizeCanvas = () => {
       vw = window.innerWidth;
@@ -73,38 +93,46 @@ export function ConstellationField() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    const buildNodes = () => {
-      // field spans the whole document so it pans through new patterns on scroll
+    const targetCount = () =>
+      Math.min(
+        MAX_NODES,
+        Math.max(80, Math.round((vw * fieldHeight) / AREA_PER_NODE))
+      );
+
+    const makeNode = (): Node => ({
+      x: Math.random() * vw,
+      y: Math.random() * fieldHeight,
+      vx: (Math.random() - 0.5) * 0.22,
+      vy: (Math.random() - 0.5) * 0.22,
+      ci: Math.floor(Math.random() * 3),
+      r: 1.1 + Math.random() * 1.6,
+    });
+
+    // Grow/shrink the field to match the current document, preserving existing
+    // node positions so the constellation never "jumps" as the page settles.
+    const syncNodes = () => {
       fieldHeight = Math.max(
         document.documentElement.scrollHeight,
         window.innerHeight
       );
-      const count = Math.min(
-        MAX_NODES,
-        Math.max(80, Math.round((vw * fieldHeight) / AREA_PER_NODE))
-      );
-      nodes = Array.from({ length: count }, () => ({
-        x: Math.random() * vw,
-        y: Math.random() * fieldHeight,
-        vx: (Math.random() - 0.5) * 0.22,
-        vy: (Math.random() - 0.5) * 0.22,
-        c: palette[Math.floor(Math.random() * palette.length)],
-        r: 1.1 + Math.random() * 1.6,
-      }));
+      const count = targetCount();
+      if (nodes.length < count) {
+        for (let i = nodes.length; i < count; i++) nodes.push(makeNode());
+      } else if (nodes.length > count) {
+        nodes.length = count;
+      }
     };
 
     sizeCanvas();
-    buildNodes();
+    syncNodes();
 
-    // rebuild when the viewport or document height changes (debounced)
+    // re-sync when the viewport or document height changes (debounced)
     let rebuildTimer = 0;
     const scheduleRebuild = () => {
       window.clearTimeout(rebuildTimer);
       rebuildTimer = window.setTimeout(() => {
         sizeCanvas();
-        // only reshuffle if the field height changed meaningfully
-        const newH = Math.max(document.documentElement.scrollHeight, window.innerHeight);
-        if (Math.abs(newH - fieldHeight) > 80 || nodes.length === 0) buildNodes();
+        syncNodes();
       }, 150);
     };
     const ro = new ResizeObserver(scheduleRebuild);
@@ -130,6 +158,8 @@ export function ConstellationField() {
     const draw = () => {
       const vh = window.innerHeight;
       const offset = window.scrollY * PARALLAX;
+      const palette = paletteRef.current;
+      const dim = dimRef.current;
       ctx.clearRect(0, 0, vw, vh);
 
       // advance positions + collect the nodes currently on-screen
@@ -165,7 +195,7 @@ export function ConstellationField() {
             if (pd < CURSOR_RADIUS) alpha += (1 - pd / CURSOR_RADIUS) * 0.5;
           }
 
-          ctx.strokeStyle = `rgba(${a.n.c}, ${Math.min(alpha, 0.95)})`;
+          ctx.strokeStyle = `rgba(${palette[a.n.ci]}, ${Math.min(alpha * dim, 0.95)})`;
           ctx.lineWidth = 0.7;
           ctx.beginPath();
           ctx.moveTo(a.n.x, a.sy);
@@ -176,6 +206,7 @@ export function ConstellationField() {
 
       // glowing nodes
       for (const { n, sy } of visible) {
+        const color = palette[n.ci];
         let boost = 0;
         if (pointer.active) {
           const pd = Math.hypot(n.x - pointer.x, sy - pointer.y);
@@ -183,14 +214,14 @@ export function ConstellationField() {
         }
         const radius = n.r + boost * 1.8;
         const glow = ctx.createRadialGradient(n.x, sy, 0, n.x, sy, radius * 4.5);
-        glow.addColorStop(0, `rgba(${n.c}, ${0.6 + boost * 0.4})`);
-        glow.addColorStop(1, `rgba(${n.c}, 0)`);
+        glow.addColorStop(0, `rgba(${color}, ${(0.6 + boost * 0.4) * dim})`);
+        glow.addColorStop(1, `rgba(${color}, 0)`);
         ctx.fillStyle = glow;
         ctx.beginPath();
         ctx.arc(n.x, sy, radius * 4.5, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = `rgba(${n.c}, ${0.9 + boost * 0.1})`;
+        ctx.fillStyle = `rgba(${color}, ${(0.9 + boost * 0.1) * dim})`;
         ctx.beginPath();
         ctx.arc(n.x, sy, radius, 0, Math.PI * 2);
         ctx.fill();

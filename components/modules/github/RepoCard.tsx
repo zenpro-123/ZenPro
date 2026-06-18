@@ -28,7 +28,7 @@ export function RepoCard({ repo, mode }: RepoCardProps) {
               alt=""
               width={20}
               height={20}
-              className="rounded-full ring-1 ring-white/10"
+              className="rounded-full ring-1 ring-foreground/10"
               unoptimized
             />
           )}

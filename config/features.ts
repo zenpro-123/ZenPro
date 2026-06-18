@@ -10,7 +10,7 @@
  * components must use `NEXT_PUBLIC_FF_*` and are inlined at build time.
  */
 
-export type FeaturePhase = "v1" | "v2" | "v3";
+export type FeaturePhase = "v1" | "v2" | "v3" | "v3c";
 
 export interface FeatureFlag {
   key: string;
@@ -166,6 +166,18 @@ export const FEATURES = {
     enabled: flag("NEXT_PUBLIC_FF_PLACEMENT_TRACKER", true),
     description: "Manual job-application tracker (interested → applied → offer)",
     phase: "v2",
+  },
+  INTELLIGENCE_TIMELINE: {
+    key: "INTELLIGENCE_TIMELINE",
+    enabled: flag("NEXT_PUBLIC_FF_INTELLIGENCE_TIMELINE", true),
+    description: "Browsable history of past daily intelligence snapshots",
+    phase: "v2",
+  },
+  KNOWLEDGE_WORKSPACE: {
+    key: "KNOWLEDGE_WORKSPACE",
+    enabled: flag("NEXT_PUBLIC_FF_KNOWLEDGE_WORKSPACE", true),
+    description: "Knowledge workspace — notes, tags, linked content, backlinks",
+    phase: "v3",
   },
   DAILY_MISSIONS: {
     key: "DAILY_MISSIONS",

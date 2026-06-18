@@ -41,7 +41,7 @@ export function OpportunityCard({ opportunity, mode }: OpportunityCardProps) {
               alt=""
               width={22}
               height={22}
-              className="rounded-md ring-1 ring-white/10"
+              className="rounded-md ring-1 ring-foreground/10"
               unoptimized
             />
           )}

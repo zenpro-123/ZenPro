@@ -58,6 +58,12 @@ export interface WeeklyReview {
   generatedAt: string;
 }
 
+/** Paginated history of daily snapshots, newest first, for the Intelligence Timeline. */
+export interface TimelineResponse {
+  snapshots: DailySnapshot[];
+  hasMore: boolean;
+}
+
 export type ChangeType = "new_story" | "rising_repo" | "new_opportunity" | "market_move" | "emerging_trend";
 
 /** A single entry in "What Changed Since Yesterday". */

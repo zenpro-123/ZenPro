@@ -13,7 +13,7 @@ export function OnboardingProgress({ step, total }: OnboardingProgressProps) {
           key={i}
           className={cn(
             "h-1 flex-1 rounded-full transition-colors duration-300",
-            i <= step ? "bg-primary" : "bg-white/10"
+            i <= step ? "bg-primary" : "bg-foreground/10"
           )}
         />
       ))}

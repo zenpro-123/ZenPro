@@ -34,7 +34,7 @@ export function BusyModeToggle() {
     <div
       className={cn(
         "flex items-center gap-2 rounded-full border px-3 py-1.5 transition-colors",
-        busyMode ? "border-warning/30 bg-warning/10" : "border-white/10 bg-white/[0.03]"
+        busyMode ? "border-warning/30 bg-warning/10" : "border-foreground/10 bg-foreground/[0.03]"
       )}
     >
       <Zap className={cn("h-3.5 w-3.5", busyMode ? "text-warning" : "text-muted-foreground")} />

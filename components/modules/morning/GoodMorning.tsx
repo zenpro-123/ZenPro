@@ -139,7 +139,7 @@ export function GoodMorning() {
             <motion.div
               key={`${dev.title}-${i}`}
               variants={staggerItem}
-              className="group rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4 transition-all duration-200 hover:border-primary/25 hover:bg-white/[0.045]"
+              className="group rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] p-4 transition-all duration-200 hover:border-primary/25 hover:bg-foreground/[0.045]"
             >
               <div className="flex items-start gap-3.5">
                 <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-chart-2 text-xs font-semibold text-white shadow-sm shadow-primary/30">
@@ -155,7 +155,7 @@ export function GoodMorning() {
                         href={dev.sourceUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="shrink-0 rounded-lg p-1 text-muted-foreground opacity-0 transition-all hover:bg-white/5 hover:text-foreground group-hover:opacity-100"
+                        className="shrink-0 rounded-lg p-1 text-muted-foreground opacity-0 transition-all hover:bg-foreground/5 hover:text-foreground group-hover:opacity-100"
                       >
                         <ArrowUpRight className="h-4 w-4" />
                       </a>

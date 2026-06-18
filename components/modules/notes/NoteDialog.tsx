@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Trash2 } from "lucide-react";
+import { Hash, Trash2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useTrackEvent } from "@/lib/events/useTrackEvent";
 import { formatRelativeTime } from "@/lib/utils/formatting";
 import type { SaveItemPayload } from "@/types/saved";
@@ -34,9 +35,10 @@ async function fetchNotes(contentHash: string): Promise<NotesResponse> {
   return res.json();
 }
 
-/** Dialog for viewing and adding notes attached to a content item, opened from CardActions. */
 export function NoteDialog({ item, open, onOpenChange }: NoteDialogProps) {
   const [draft, setDraft] = useState("");
+  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const trackEvent = useTrackEvent();
   const queryKey = ["notes", item.contentHash];
@@ -52,16 +54,20 @@ export function NoteDialog({ item, open, onOpenChange }: NoteDialogProps) {
       const res = await fetch("/api/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ item, body }),
+        body: JSON.stringify({ item, body, tags }),
       });
       if (!res.ok) throw new Error("Failed to add note");
       return res.json();
     },
     onSuccess: () => {
       setDraft("");
+      setTags([]);
+      setTagInput("");
       trackEvent({ eventType: "note_create", itemId: item.contentHash });
       queryClient.invalidateQueries({ queryKey });
       queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({ queryKey: ["knowledge-notes"] });
+      queryClient.invalidateQueries({ queryKey: ["knowledge-tags"] });
     },
   });
 
@@ -74,8 +80,25 @@ export function NoteDialog({ item, open, onOpenChange }: NoteDialogProps) {
       trackEvent({ eventType: "note_delete", itemId: id });
       queryClient.invalidateQueries({ queryKey });
       queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({ queryKey: ["knowledge-notes"] });
+      queryClient.invalidateQueries({ queryKey: ["knowledge-tags"] });
     },
   });
+
+  function addTag() {
+    const tag = tagInput.trim().toLowerCase();
+    if (tag && !tags.includes(tag)) {
+      setTags([...tags, tag]);
+    }
+    setTagInput("");
+  }
+
+  function handleTagKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag();
+    }
+  }
 
   const notes = data?.data ?? [];
 
@@ -101,6 +124,19 @@ export function NoteDialog({ item, open, onOpenChange }: NoteDialogProps) {
             >
               <div className="flex-1 space-y-1">
                 <p className="text-sm whitespace-pre-wrap">{note.body}</p>
+                {note.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {note.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary"
+                      >
+                        <Hash className="h-2 w-2" />
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground/70">{formatRelativeTime(note.updatedAt)}</p>
               </div>
               <Button
@@ -122,6 +158,37 @@ export function NoteDialog({ item, open, onOpenChange }: NoteDialogProps) {
           onChange={(e) => setDraft(e.target.value)}
           rows={3}
         />
+
+        {/* Tags input */}
+        <div className="space-y-2">
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
+                >
+                  #{tag}
+                  <button
+                    type="button"
+                    onClick={() => setTags(tags.filter((t) => t !== tag))}
+                    className="hover:text-destructive"
+                  >
+                    <X className="h-2.5 w-2.5" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <Input
+            placeholder="Add tags (press Enter)…"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            onBlur={addTag}
+            className="h-8 text-xs"
+          />
+        </div>
 
         <DialogFooter>
           <Button

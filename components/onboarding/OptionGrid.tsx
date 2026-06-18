@@ -32,7 +32,7 @@ export function OptionGrid({ options, selected, onToggle }: OptionGridProps) {
               "inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
               isSelected
                 ? "border-primary/40 bg-primary/15 text-primary"
-                : "border-white/10 bg-white/[0.03] text-muted-foreground hover:border-white/20 hover:text-foreground"
+                : "border-foreground/10 bg-foreground/[0.03] text-muted-foreground hover:border-foreground/20 hover:text-foreground"
             )}
           >
             {isSelected && <Check className="h-3.5 w-3.5" />}

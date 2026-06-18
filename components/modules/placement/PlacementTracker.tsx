@@ -188,7 +188,7 @@ export function PlacementTracker() {
                 {entries.map((entry) => (
                   <tr
                     key={entry.id}
-                    className="border-b border-border/30 align-middle transition-colors last:border-0 hover:bg-white/[0.02]"
+                    className="border-b border-border/30 align-middle transition-colors last:border-0 hover:bg-foreground/[0.02]"
                   >
                     <td className="px-4 py-3 text-center font-medium">
                       {entry.url ? (

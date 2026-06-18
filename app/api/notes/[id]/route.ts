@@ -12,7 +12,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { body?: string };
+  let body: { body?: string; tags?: string[] };
   try {
     body = await request.json();
   } catch {
@@ -24,12 +24,21 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: "Note body is required" }, { status: 400 });
   }
 
+  const updates: Record<string, unknown> = {
+    body: noteBody,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (body.tags !== undefined) {
+    updates.tags = body.tags.map((t) => t.trim().toLowerCase()).filter(Boolean);
+  }
+
   const { data, error } = await supabase
     .from("notes")
-    .update({ body: noteBody, updated_at: new Date().toISOString() })
+    .update(updates)
     .eq("id", id)
     .eq("user_id", user.id)
-    .select("*, content:content_items(title, url)")
+    .select("*, content:content_items(title, url, category)")
     .maybeSingle();
 
   if (error) {
@@ -47,11 +56,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       contentItemId: data.content_item_id,
       opportunityId: data.opportunity_id,
       body: data.body,
+      tags: data.tags ?? [],
       createdAt: data.created_at,
       updatedAt: data.updated_at,
       target: {
         title: data.content?.title ?? "Untitled",
         url: data.content?.url ?? null,
+        category: data.content?.category ?? null,
       },
     },
   });

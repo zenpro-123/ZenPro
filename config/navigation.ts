@@ -1,5 +1,6 @@
 import {
   Home,
+  BookOpen,
   Bookmark,
   StickyNote,
   Activity,
@@ -11,6 +12,7 @@ import {
   Building2,
   Wrench,
   Target,
+  History,
   type LucideIcon,
 } from "lucide-react";
 import { FEATURES } from "@/config/features";
@@ -27,6 +29,8 @@ export const NAV_ITEMS: NavItem[] = [
   ...(FEATURES.SAVED_ITEMS.enabled ? [{ href: "/saved", label: "Saved", icon: Bookmark }] : []),
   ...(FEATURES.KNOWLEDGE_NOTES.enabled ? [{ href: "/notes", label: "Notes", icon: StickyNote }] : []),
   ...(FEATURES.WEEKLY_REVIEW.enabled ? [{ href: "/review", label: "Weekly Review", icon: CalendarCheck }] : []),
+  ...(FEATURES.INTELLIGENCE_TIMELINE.enabled ? [{ href: "/timeline", label: "Timeline", icon: History }] : []),
+  ...(FEATURES.KNOWLEDGE_WORKSPACE.enabled ? [{ href: "/knowledge", label: "Knowledge", icon: BookOpen }] : []),
   ...(FEATURES.PLACEMENT_TRACKER.enabled ? [{ href: "/placement", label: "Placement", icon: Building2 }] : []),
   ...(FEATURES.LEARNING_FEED.enabled ? [{ href: "/learning", label: "Learning", icon: GraduationCap }] : []),
   ...(FEATURES.TOOL_SPOTLIGHT.enabled ? [{ href: "/tools", label: "Tools", icon: Wrench }] : []),

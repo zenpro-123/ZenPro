@@ -31,6 +31,14 @@ function BusyBanner() {
  */
 export function DashboardModules() {
   const busyMode = useUIStore((s) => s.busyMode);
+  const busyModeAnimate = useUIStore((s) => s.busyModeAnimate);
+
+  // Animate the swap only for genuine user toggles. The initial seed from the
+  // saved profile applies instantly so the dashboard never appears to collapse
+  // on its own during load.
+  const swap = busyModeAnimate
+    ? { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const }
+    : { duration: 0 };
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -40,7 +48,7 @@ export function DashboardModules() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          transition={swap}
           className="mx-auto max-w-6xl space-y-8"
         >
           <BusyBanner />
@@ -59,7 +67,7 @@ export function DashboardModules() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          transition={swap}
           className="mx-auto max-w-6xl space-y-8"
         >
           <div className={heroWrap}>

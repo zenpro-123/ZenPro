@@ -184,6 +184,39 @@ export async function getSnapshot(date: string): Promise<DailySnapshot | null> {
 }
 
 /**
+ * Read-only, newest-first page of previously generated snapshots — powers the
+ * Intelligence Timeline. Cursor-paginated by `snapshot_date`: pass the last date
+ * you've seen as `before` to fetch the next (older) page. Fetches one extra row
+ * to report `hasMore` without a separate count query.
+ */
+export async function listSnapshots(
+  opts: { limit?: number; before?: string; after?: string } = {}
+): Promise<{ snapshots: DailySnapshot[]; hasMore: boolean }> {
+  const limit = Math.min(Math.max(opts.limit ?? 7, 1), 30);
+
+  try {
+    const supabase = await createClient();
+    let query = supabase
+      .from("daily_snapshots")
+      .select("*")
+      .order("snapshot_date", { ascending: false })
+      .limit(limit + 1);
+
+    if (opts.before) query = query.lt("snapshot_date", opts.before);
+    if (opts.after) query = query.gte("snapshot_date", opts.after);
+
+    const { data, error } = await query;
+    if (error || !data) return { snapshots: [], hasMore: false };
+
+    const hasMore = data.length > limit;
+    const snapshots = data.slice(0, limit).map((row) => mapRow(row as DailySnapshotRow));
+    return { snapshots, hasMore };
+  } catch {
+    return { snapshots: [], hasMore: false };
+  }
+}
+
+/**
  * Returns today's snapshot, generating and persisting it on first request of the
  * day. Cached (memory → Redis → Supabase) for `CACHE_TTL.SNAPSHOT` seconds so
  * repeated requests within the window reuse the same bundle.
