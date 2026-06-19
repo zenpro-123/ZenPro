@@ -10,7 +10,7 @@
  * components must use `NEXT_PUBLIC_FF_*` and are inlined at build time.
  */
 
-export type FeaturePhase = "v1" | "v2" | "v3" | "v3c";
+export type FeaturePhase = "v1" | "v2" | "v3" | "v3c" | "v4";
 
 export interface FeatureFlag {
   key: string;
@@ -137,12 +137,6 @@ export const FEATURES = {
     description: "Funding rounds, acquisitions, launches",
     phase: "v2",
   },
-  AI_SIGNALS_LAB: {
-    key: "AI_SIGNALS_LAB",
-    enabled: false,
-    description: "Predictive AI signals with confidence scoring",
-    phase: "v2",
-  },
   WEEKLY_REVIEW: {
     key: "WEEKLY_REVIEW",
     enabled: flag("NEXT_PUBLIC_FF_WEEKLY_REVIEW", true),
@@ -179,11 +173,37 @@ export const FEATURES = {
     description: "Knowledge workspace — notes, tags, linked content, backlinks",
     phase: "v3",
   },
-  DAILY_MISSIONS: {
-    key: "DAILY_MISSIONS",
-    enabled: flag("NEXT_PUBLIC_FF_DAILY_MISSIONS", false),
-    description: "Gamified daily missions with XP/streaks",
-    phase: "v2",
+
+  // --- V4: Opportunity Intelligence Layer ---
+  SKILL_RADAR: {
+    key: "SKILL_RADAR",
+    enabled: flag("NEXT_PUBLIC_FF_SKILL_RADAR", true),
+    description: "Skill Demand Radar — frequency-ranked skills with growth indicators",
+    phase: "v4",
+  },
+  CAREER_SIGNALS: {
+    key: "CAREER_SIGNALS",
+    enabled: flag("NEXT_PUBLIC_FF_CAREER_SIGNALS", true),
+    description: "Career Signals — deterministic hiring/skill/technology analytics",
+    phase: "v4",
+  },
+  EMERGING_TECH: {
+    key: "EMERGING_TECH",
+    enabled: flag("NEXT_PUBLIC_FF_EMERGING_TECH", true),
+    description: "Emerging Technologies — cross-source technology detection",
+    phase: "v4",
+  },
+  OPPORTUNITY_MAP: {
+    key: "OPPORTUNITY_MAP",
+    enabled: flag("NEXT_PUBLIC_FF_OPPORTUNITY_MAP", true),
+    description: "Opportunity Map — opportunity discovery and analytics",
+    phase: "v4",
+  },
+  BUILD_NEXT: {
+    key: "BUILD_NEXT",
+    enabled: flag("NEXT_PUBLIC_FF_BUILD_NEXT", true),
+    description: "Build This Next — deterministic project idea generator from trends",
+    phase: "v4",
   },
   INTELLIGENCE_SCORE: {
     key: "INTELLIGENCE_SCORE",

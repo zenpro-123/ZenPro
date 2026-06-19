@@ -3,7 +3,7 @@ import { create } from "zustand";
 interface ContentState {
   /** Item IDs the user has bookmarked — kept client-side for instant toggle UI. */
   savedItemIds: Set<string>;
-  /** Item IDs the user has viewed this session — feeds Daily Missions / Intelligence Score. */
+  /** Item IDs the user has viewed this session — feeds Intelligence Score. */
   viewedItemIds: Set<string>;
   toggleSaved: (itemId: string) => void;
   isSaved: (itemId: string) => boolean;

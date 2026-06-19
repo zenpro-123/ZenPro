@@ -42,18 +42,3 @@ export interface MorningBrief {
   generatedAt: string;
 }
 
-export type AISignalType = "tech" | "startup" | "creator" | "github";
-export type AISignalStatus = "pending" | "confirmed" | "wrong";
-
-/** A labeled, evidence-backed prediction surfaced in the AI Signals Lab. */
-export interface AISignal {
-  id: string;
-  signalType: AISignalType;
-  title: string;
-  prediction: string;
-  confidenceScore: number;
-  evidence: string[];
-  rationale: string;
-  status: AISignalStatus;
-  generatedAt: string;
-}
