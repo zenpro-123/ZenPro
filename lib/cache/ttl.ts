@@ -14,4 +14,9 @@ export const CACHE_TTL = {
   WHAT_CHANGED: 6 * 60 * 60,
   WEEKLY_REVIEW: 6 * 60 * 60,
   RECOMMENDATIONS: 60 * 60,
+  SKILL_RADAR: 6 * 60 * 60,
+  CAREER_SIGNALS: 6 * 60 * 60,
+  EMERGING_TECH: 6 * 60 * 60,
+  OPPORTUNITY_MAP: 60 * 60,
+  BUILD_NEXT: 6 * 60 * 60,
 } as const;

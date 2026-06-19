@@ -96,6 +96,19 @@ export function PlacementTracker() {
     );
   }, [data]);
 
+  const stats = useMemo(() => {
+    const counts: Record<OpportunityStatus, number> = {
+      interested: 0,
+      applied: 0,
+      interviewing: 0,
+      offer: 0,
+      rejected: 0,
+      archived: 0,
+    };
+    for (const entry of entries) counts[entry.status] += 1;
+    return counts;
+  }, [entries]);
+
   if (!enabled) return null;
 
   if (hydrated && !profile) {
@@ -168,6 +181,22 @@ export function PlacementTracker() {
             </Button>
           }
         />
+      )}
+
+      {!isLoading && !isError && entries.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {(["interested", "applied", "interviewing", "offer"] as OpportunityStatus[]).map(
+            (status) => (
+              <GlassCard key={status} static className="flex items-center gap-3 px-4 py-3">
+                <span className={cn("h-2 w-2 shrink-0 rounded-full", STATUS_ACCENT[status])} />
+                <div>
+                  <div className="text-lg font-semibold tabular-nums">{stats[status]}</div>
+                  <div className="text-xs text-muted-foreground">{STATUS_LABELS[status]}</div>
+                </div>
+              </GlassCard>
+            )
+          )}
+        </div>
       )}
 
       {!isLoading && !isError && entries.length > 0 && (
