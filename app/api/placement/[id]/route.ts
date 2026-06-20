@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 import { OPPORTUNITY_STATUSES, type OpportunityEntry, type OpportunityStatus } from "@/types/placement";
 
 interface OpportunityRow {
@@ -29,6 +30,9 @@ function mapRow(row: OpportunityRow): OpportunityEntry {
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const { id } = await params;
   const supabase = await createClient();
   const {
@@ -82,7 +86,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     .maybeSingle();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[placement]", error.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
   if (!data) {
     return NextResponse.json({ error: "Opportunity not found" }, { status: 404 });
@@ -92,6 +97,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const { id } = await params;
   const supabase = await createClient();
   const {
@@ -109,7 +117,8 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     .eq("user_id", user.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[placement]", error.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

@@ -12,6 +12,7 @@ import {
   FileText,
   GraduationCap,
   History,
+  Info,
   StickyNote,
   Wrench,
   type LucideIcon,
@@ -43,6 +44,7 @@ const GROUPS: { type: SearchResultType; heading: string; icon: LucideIcon }[] = 
 export function CommandCenter() {
   const open = useUIStore((s) => s.commandCenterOpen);
   const setOpen = useUIStore((s) => s.setCommandCenterOpen);
+  const setAboutOpen = useUIStore((s) => s.setAboutOpen);
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -152,6 +154,10 @@ export function CommandCenter() {
               <CommandItem onSelect={() => go("/knowledge")}>
                 <FileText className="h-4 w-4" />
                 Knowledge workspace
+              </CommandItem>
+              <CommandItem onSelect={() => { setOpen(false); setAboutOpen(true); }}>
+                <Info className="h-4 w-4" />
+                About ZenPro
               </CommandItem>
             </CommandGroup>
           </>

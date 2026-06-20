@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 
 export async function GET() {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -18,13 +22,17 @@ export async function GET() {
     .maybeSingle();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[preferences]", error.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   return NextResponse.json({ data });
 }
 
 export async function POST(request: Request) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -34,7 +42,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
   const {
     interests = [],
     favoriteTopics = [],
@@ -57,7 +70,8 @@ export async function POST(request: Request) {
   );
 
   if (prefsError) {
-    return NextResponse.json({ error: prefsError.message }, { status: 500 });
+    console.error("[preferences] upsert:", prefsError.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   const { error: profileError } = await supabase
@@ -66,7 +80,8 @@ export async function POST(request: Request) {
     .eq("id", user.id);
 
   if (profileError) {
-    return NextResponse.json({ error: profileError.message }, { status: 500 });
+    console.error("[preferences] profile:", profileError.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

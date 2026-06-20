@@ -25,7 +25,7 @@ export function RepoCard({ repo, mode }: RepoCardProps) {
           {repo.metadata.ownerAvatar && (
             <Image
               src={repo.metadata.ownerAvatar}
-              alt=""
+              alt={`${owner} avatar`}
               width={20}
               height={20}
               className="rounded-full ring-1 ring-foreground/10"

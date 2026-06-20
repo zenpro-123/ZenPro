@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 
 export async function GET(request: NextRequest) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },

@@ -27,7 +27,7 @@ export function ArticleCard({ article, mode }: ArticleCardProps) {
         {article.imageUrl ? (
           <Image
             src={article.imageUrl}
-            alt=""
+            alt={article.title}
             fill
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />

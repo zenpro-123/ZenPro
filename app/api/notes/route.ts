@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 import { resolveContentItemId } from "@/lib/content/resolve-content-item";
 import type { NoteWithTarget } from "@/types/notes";
 import type { SaveItemPayload } from "@/types/saved";
@@ -35,6 +36,9 @@ function mapRow(row: NoteRow): NoteWithTarget {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -60,7 +64,8 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (contentError) {
-      return NextResponse.json({ error: contentError.message }, { status: 500 });
+      console.error("[notes] resolve:", contentError.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
     }
 
     if (!contentItem) {
@@ -85,20 +90,27 @@ export async function GET(request: NextRequest) {
     query = query.contains("tags", [tag]);
   }
 
-  if (search && search.length >= 2) {
-    query = query.or(`body.ilike.%${search}%`);
+  if (search && search.length >= 2 && search.length <= 200) {
+    const safe = search.replace(/[(),."'%;\\]/g, " ").trim();
+    if (safe.length >= 2) {
+      query = query.ilike("body", `%${safe}%`);
+    }
   }
 
   const { data, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[notes]", error.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   return NextResponse.json({ data: ((data ?? []) as unknown as NoteRow[]).map(mapRow) });
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -153,7 +165,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[notes]", error.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   return NextResponse.json({ data: mapRow(data as unknown as NoteRow) }, { status: 201 });

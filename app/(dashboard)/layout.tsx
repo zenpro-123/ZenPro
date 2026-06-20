@@ -5,6 +5,8 @@ import { AnimatedBackground } from "@/components/layout/AnimatedBackground";
 import { CommandCenter } from "@/components/layout/CommandCenter";
 import { UserHydrator } from "@/components/layout/UserHydrator";
 import { SavedItemsHydrator } from "@/components/layout/SavedItemsHydrator";
+import { Footer } from "@/components/layout/Footer";
+import { AboutZenPro } from "@/components/shared/AboutZenPro";
 import type { UserProfile, UserPreferences } from "@/types/user";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -80,7 +82,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="flex min-h-screen flex-col">
         <Header />
         <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">{children}</main>
+        <Footer />
       </div>
+      <AboutZenPro />
     </div>
   );
 }

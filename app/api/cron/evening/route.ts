@@ -3,7 +3,8 @@ import { generateSnapshot } from "@/lib/intelligence/snapshot-service";
 import { setCached, CACHE_TTL } from "@/lib/cache";
 
 export async function GET(request: NextRequest) {
-  if (request.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

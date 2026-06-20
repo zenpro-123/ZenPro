@@ -4,6 +4,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig: NextConfig = {
   // Hide the on-screen dev indicator (the floating "N / Issues" badge).
   devIndicators: false,
+  allowedDevOrigins: ["192.168.68.3"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },

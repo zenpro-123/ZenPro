@@ -10,6 +10,7 @@ interface UIState {
    */
   busyModeAnimate: boolean;
   commandCenterOpen: boolean;
+  aboutOpen: boolean;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   toggleBusyMode: () => void;
@@ -17,6 +18,7 @@ interface UIState {
   /** Seed busy mode from persisted state without triggering a swap animation. */
   seedBusyMode: (value: boolean) => void;
   setCommandCenterOpen: (open: boolean) => void;
+  setAboutOpen: (open: boolean) => void;
 }
 
 /** Shell-level UI state: sidebar collapse, busy mode, command center modal. */
@@ -25,10 +27,12 @@ export const useUIStore = create<UIState>((set) => ({
   busyMode: false,
   busyModeAnimate: false,
   commandCenterOpen: false,
+  aboutOpen: false,
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   toggleBusyMode: () => set((s) => ({ busyMode: !s.busyMode, busyModeAnimate: true })),
   setBusyMode: (value) => set({ busyMode: value, busyModeAnimate: true }),
   seedBusyMode: (value) => set({ busyMode: value }),
   setCommandCenterOpen: (open) => set({ commandCenterOpen: open }),
+  setAboutOpen: (open) => set({ aboutOpen: open }),
 }));

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 import { OPPORTUNITY_STATUSES, type OpportunityEntry, type OpportunityStatus } from "@/types/placement";
 
 interface OpportunityRow {
@@ -29,6 +30,9 @@ function mapRow(row: OpportunityRow): OpportunityEntry {
 }
 
 export async function GET() {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -45,13 +49,17 @@ export async function GET() {
     .order("updated_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[placement]", error.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   return NextResponse.json({ data: (data ?? []).map((row) => mapRow(row as OpportunityRow)) });
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -103,7 +111,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[placement]", error.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   return NextResponse.json({ data: mapRow(data as OpportunityRow) }, { status: 201 });

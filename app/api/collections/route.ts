@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 import type { Collection } from "@/types/saved";
 
 export async function GET() {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -43,6 +47,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -77,7 +84,8 @@ export async function POST(request: NextRequest) {
     if (error.code === "23505") {
       return NextResponse.json({ error: "A collection with this name already exists" }, { status: 409 });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[collections]", error.message);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 
   const collection: Collection = {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listSnapshots, getOrCreateTodaySnapshot } from "@/lib/intelligence/snapshot-service";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 import type { DailySnapshot } from "@/types/intelligence";
 
 export type TimelineCategory = "tech" | "career" | "market" | "github" | "learning" | "opportunities";
@@ -49,24 +50,25 @@ function isSnapshotEmpty(snapshot: DailySnapshot): boolean {
  * range, and `?before=` for cursor pagination.
  */
 export async function GET(request: NextRequest) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const params = request.nextUrl.searchParams;
-  const limit = Number.parseInt(params.get("limit") ?? "7", 10);
+  const limit = Math.min(Math.max(Number.parseInt(params.get("limit") ?? "7", 10) || 7, 1), 50);
   const before = params.get("before") ?? undefined;
   const after = params.get("after") ?? undefined;
   const query = params.get("q")?.trim() ?? "";
   const category = (params.get("category") ?? "") as TimelineCategory | "";
 
   let { snapshots, hasMore } = await listSnapshots({
-    limit: Number.isFinite(limit) ? limit : 7,
+    limit,
     before,
     after,
   });
 
   if (!before && !after && snapshots.length === 0) {
     await getOrCreateTodaySnapshot();
-    ({ snapshots, hasMore } = await listSnapshots({
-      limit: Number.isFinite(limit) ? limit : 7,
-    }));
+    ({ snapshots, hasMore } = await listSnapshots({ limit }));
   }
 
   if (category) {

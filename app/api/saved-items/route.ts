@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 import { resolveContentItemId } from "@/lib/content/resolve-content-item";
 import type { ContentItemRow } from "@/types/recommendation";
 import type { SavedItemWithContent, SaveItemPayload } from "@/types/saved";
@@ -27,6 +28,9 @@ function mapRow(row: SavedItemRow): SavedItemWithContent {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -48,7 +52,8 @@ export async function GET(request: NextRequest) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[saved-items] GET:", error.message);
+    return NextResponse.json({ error: "Failed to load saved items" }, { status: 500 });
   }
 
   let items = (data ?? []) as unknown as SavedItemRow[];
@@ -71,6 +76,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -119,7 +127,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[saved-items] POST:", error.message);
+    return NextResponse.json({ error: "Failed to save item" }, { status: 500 });
   }
 
   return NextResponse.json(
@@ -138,6 +147,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -159,7 +171,8 @@ export async function DELETE(request: NextRequest) {
     .maybeSingle();
 
   if (contentError) {
-    return NextResponse.json({ error: contentError.message }, { status: 500 });
+    console.error("[saved-items] DELETE lookup:", contentError.message);
+    return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
   }
 
   if (!contentItem) {
@@ -173,7 +186,8 @@ export async function DELETE(request: NextRequest) {
     .eq("item_id", contentItem.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[saved-items] DELETE:", error.message);
+    return NextResponse.json({ error: "Failed to remove item" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

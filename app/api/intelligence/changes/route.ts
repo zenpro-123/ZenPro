@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getOrCreateTodaySnapshot, getSnapshot } from "@/lib/intelligence/snapshot-service";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 import { computeWhatChanged } from "@/lib/intelligence/diff-service";
 
 function yesterdayDate(): string {
@@ -9,6 +10,9 @@ function yesterdayDate(): string {
 }
 
 export async function GET() {
+  const limited = await checkRateLimit();
+  if (limited) return limited;
+
   const { data: today } = await getOrCreateTodaySnapshot();
   const yesterday = await getSnapshot(yesterdayDate());
 

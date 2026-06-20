@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/api/with-rate-limit";
 
 export type SearchResultType =
   | "content"
@@ -32,9 +33,12 @@ function firstContent(value: unknown): JoinedContent | null {
 }
 
 export async function GET(request: NextRequest) {
+  const limited = await checkRateLimit("search");
+  if (limited) return limited;
+
   const query = request.nextUrl.searchParams.get("q")?.trim() ?? "";
 
-  if (query.length < 2) {
+  if (query.length < 2 || query.length > 200) {
     return NextResponse.json({ results: [] });
   }
 
@@ -144,7 +148,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (user) {
-    const orSafe = query.replace(/[(),]/g, " ").trim();
+    const orSafe = query.replace(/[(),."'%;\\]/g, " ").trim();
 
     const [saved, notes, opportunities, reviews] = await Promise.all([
       supabase

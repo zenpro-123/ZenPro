@@ -38,7 +38,7 @@ export function OpportunityCard({ opportunity, mode }: OpportunityCardProps) {
           {opportunity.imageUrl && (
             <Image
               src={opportunity.imageUrl}
-              alt=""
+              alt={`${metadata.company} logo`}
               width={22}
               height={22}
               className="rounded-md ring-1 ring-foreground/10"

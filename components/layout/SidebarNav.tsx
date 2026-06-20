@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_GROUPS } from "@/config/navigation";
 import { NavTooltip } from "@/components/layout/NavTooltip";
+import { ZenProMark } from "@/components/shared/ZenProMark";
 
 interface SidebarNavProps {
   onNavigate?: () => void;
@@ -23,7 +24,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
         className="flex items-center gap-2.5 px-4 py-5 font-heading text-lg font-semibold tracking-tight"
       >
         <span className="ring-gradient flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-chart-2 text-white shadow-sm shadow-primary/30">
-          <Sparkles className="h-4 w-4" />
+          <ZenProMark className="h-4 w-4" />
         </span>
         ZenPro
       </Link>
@@ -90,8 +91,8 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
         })}
       </nav>
 
-      <div className="px-4 py-4 text-xs text-muted-foreground/60">
-        ZenPro v1.0 — Your Daily Intelligence Companion
+      <div className="px-4 py-4 text-xs text-muted-foreground/40">
+        v1.0
       </div>
     </div>
   );
