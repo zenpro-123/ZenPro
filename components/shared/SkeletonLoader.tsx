@@ -48,11 +48,11 @@ export function HeroSkeleton() {
 }
 
 /** Skeleton row for ticker / market widgets. */
-export function TickerSkeleton({ count = 6 }: { count?: number }) {
+export function TickerSkeleton({ count = 9 }: { count?: number }) {
   return (
-    <div className="flex gap-3 overflow-hidden">
+    <div className="grid grid-cols-2 gap-3 @sm:grid-cols-3">
       {Array.from({ length: count }).map((_, i) => (
-        <Skeleton key={i} className="h-20 w-36 rounded-xl shrink-0" />
+        <Skeleton key={i} className="h-24 w-full rounded-xl" />
       ))}
     </div>
   );

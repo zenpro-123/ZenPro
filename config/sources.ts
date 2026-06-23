@@ -31,8 +31,8 @@ export const MARKET_SYMBOLS = {
   indices: [
     { symbol: "^NSEI", displaySymbol: "NIFTY 50", name: "Nifty 50" },
     { symbol: "^BSESN", displaySymbol: "SENSEX", name: "BSE Sensex" },
+    { symbol: "^NSEBANK", displaySymbol: "NIFTY BANK", name: "Nifty Bank" },
     { symbol: "^IXIC", displaySymbol: "NASDAQ", name: "Nasdaq Composite" },
-    { symbol: "^GSPC", displaySymbol: "S&P 500", name: "S&P 500" },
   ],
   commodities: [
     { symbol: "GC=F", displaySymbol: "GOLD", name: "Gold Futures" },

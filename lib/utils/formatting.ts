@@ -1,7 +1,9 @@
-/** Format a price for display, scaling decimals based on magnitude. */
+/** Format a price for display, scaling decimals based on magnitude. INR uses the
+ *  Indian (lakh/crore) digit grouping; everything else uses Western grouping. */
 export function formatPrice(value: number, currency = "USD"): string {
   const maximumFractionDigits = value < 1 ? 4 : value < 100 ? 2 : 0;
-  return new Intl.NumberFormat("en-US", {
+  const locale = currency === "INR" ? "en-IN" : "en-US";
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     maximumFractionDigits,

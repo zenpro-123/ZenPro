@@ -2,6 +2,7 @@
 
 import { ZenProMark } from "@/components/shared/ZenProMark";
 import { useUIStore } from "@/stores/uiStore";
+import { APP_VERSION } from "@/config/app";
 
 export function Footer() {
   const setAboutOpen = useUIStore((s) => s.setAboutOpen);
@@ -29,7 +30,7 @@ export function Footer() {
             skkumarsoorya@gmail.com
           </a>
           <span className="rounded-full border border-foreground/[0.08] px-2 py-0.5 text-[10px]">
-            v1.0
+            v{APP_VERSION}
           </span>
         </div>
       </div>

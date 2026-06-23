@@ -1,6 +1,6 @@
-import Image from "next/image";
-import { ArrowUpRight, GraduationCap } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { ArticleCover } from "@/components/shared/ArticleCover";
 import { SourceBadge } from "@/components/shared/SourceBadge";
 import { ReadingTimeBadge } from "@/components/shared/ReadingTimeBadge";
 import { CardActions } from "@/components/shared/CardActions";
@@ -23,19 +23,12 @@ export function LearningCard({ article, mode }: LearningCardProps) {
     <GlassCard className="group flex h-full flex-col overflow-hidden p-0">
       {/* Cover — always present for uniform tile height */}
       <div className="relative h-40 w-full shrink-0 overflow-hidden">
-        {article.imageUrl ? (
-          <Image
-            src={article.imageUrl}
-            alt={article.title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
-        ) : (
-          <div className="cover-placeholder flex h-full w-full items-center justify-center">
-            <GraduationCap className="h-9 w-9 text-primary/40" />
-          </div>
-        )}
+        <ArticleCover
+          imageUrl={article.imageUrl}
+          url={article.url}
+          title={article.title}
+          category={article.category}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent opacity-90" />
 
         <div className="absolute bottom-3 left-3">

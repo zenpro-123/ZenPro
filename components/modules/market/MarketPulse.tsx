@@ -36,7 +36,7 @@ export function MarketPulse() {
   const items = data?.data ?? [];
 
   return (
-    <section className="space-y-5">
+    <section className="flex h-full flex-col gap-5">
       <SectionHeader
         icon={LineChart}
         eyebrow="Markets"
@@ -44,7 +44,11 @@ export function MarketPulse() {
         subtitle="Indices, crypto, commodities, and forex"
       />
 
-      {isLoading && <TickerSkeleton count={7} />}
+      {isLoading && (
+        <div className="@container">
+          <TickerSkeleton count={7} />
+        </div>
+      )}
 
       {!isLoading && (isError || items.length === 0) && (
         <EmptyState
@@ -56,27 +60,29 @@ export function MarketPulse() {
 
       {items.length > 0 && (
         <>
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="flex gap-3 overflow-x-auto pb-2"
-          >
-            {items.map((item) => (
-              <motion.div key={item.symbol} variants={staggerItem} className="shrink-0">
-                <TickerWidget item={item} />
-              </motion.div>
-            ))}
-          </motion.div>
+          <div className="@container flex-1">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+              className="grid h-full auto-rows-fr grid-cols-2 gap-3 @sm:grid-cols-3"
+            >
+              {items.map((item) => (
+                <motion.div key={item.symbol} variants={staggerItem}>
+                  <TickerWidget item={item} />
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
 
           {data?.insight && (
-            <GlassCard className="p-5">
-              <h3 className="text-sm font-medium text-foreground">What investors are watching</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{data.insight.summary}</p>
+            <GlassCard static className="px-4 py-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">What investors are watching</h3>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{data.insight.summary}</p>
               {data.insight.watchItems.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-2 flex flex-wrap gap-1.5">
                   {data.insight.watchItems.map((item) => (
-                    <Badge key={item} variant="secondary">
+                    <Badge key={item} variant="secondary" className="text-xs">
                       {item}
                     </Badge>
                   ))}

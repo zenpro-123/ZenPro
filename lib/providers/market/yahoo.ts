@@ -53,6 +53,20 @@ export class YahooFinanceProvider extends BaseProvider<MarketItem> {
         ];
       });
 
+      // Localize commodities (gold/silver) to INR for an India-first audience.
+      // We reuse the USD/INR rate already in this batch — deterministic and free.
+      // Percentage change is currency-agnostic, so only price/abs-change convert.
+      const usdInr = items.find((i) => i.symbol === "USD/INR")?.price;
+      if (usdInr && usdInr > 0) {
+        for (const item of items) {
+          if (item.assetType === "commodity" && item.currency === "USD") {
+            item.price *= usdInr;
+            item.change24h *= usdInr;
+            item.currency = "INR";
+          }
+        }
+      }
+
       return this.ok(items);
     } catch (err) {
       return this.fail(err);

@@ -61,9 +61,11 @@ export function UserMenu() {
           <span className="text-xs text-muted-foreground">{profile?.email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="h-4 w-4" />
-          Profile
+        <DropdownMenuItem asChild>
+          <Link href="/profile">
+            <User className="h-4 w-4" />
+            Profile
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="text-destructive">

@@ -42,28 +42,59 @@ interface Node {
   r: number;
 }
 
-const LINK_DIST = 150; // px within which nodes connect
-const CURSOR_RADIUS = 180; // px pointer influence radius
-const PARALLAX = 0.6; // background scrolls slower than content for depth
-const AREA_PER_NODE = 10000; // smaller → denser field (≈ one node per this many px²)
-const MAX_NODES = 3200; // safety cap for extremely tall pages
+const CURSOR_RADIUS = 180;
+const PARALLAX = 0.6;
+
+interface ThemeConfig {
+  linkDist: number;
+  areaPerNode: number;
+  maxNodes: number;
+  dim: number;
+  speed: number;
+  nodeScale: number;
+  glowScale: number;
+  linkAlpha: number;
+  bottomFade: boolean;
+}
+
+const DARK_CFG: ThemeConfig = {
+  linkDist: 150,
+  areaPerNode: 18000,
+  maxNodes: 1800,
+  dim: 1,
+  speed: 0.22,
+  nodeScale: 1,
+  glowScale: 1,
+  linkAlpha: 0.42,
+  bottomFade: true,
+};
+
+const LIGHT_CFG: ThemeConfig = {
+  linkDist: 130,
+  areaPerNode: 28000,
+  maxNodes: 800,
+  dim: 0.25,
+  speed: 0.12,
+  nodeScale: 0.8,
+  glowScale: 0.7,
+  linkAlpha: 0.25,
+  bottomFade: false,
+};
 
 interface ConstellationFieldProps {
-  /** Soften the network for a light canvas (colored nodes on white look harsh at full strength). */
   isLight?: boolean;
 }
 
 export function ConstellationField({ isLight = false }: ConstellationFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // Live theme state read by the animation loop without restarting it.
-  const dimRef = useRef(isLight ? 0.5 : 1);
+  const dimRef = useRef(isLight ? LIGHT_CFG.dim : DARK_CFG.dim);
+  const cfgRef = useRef<ThemeConfig>(isLight ? LIGHT_CFG : DARK_CFG);
   const paletteRef = useRef<string[]>([]);
 
-  // Keep the palette + dim factor in sync with the theme. This runs on mount and
-  // whenever `isLight` flips — recoloring the existing field in place rather than
-  // tearing down the animation and reshuffling every node.
   useEffect(() => {
-    dimRef.current = isLight ? 0.5 : 1;
+    const cfg = isLight ? LIGHT_CFG : DARK_CFG;
+    dimRef.current = cfg.dim;
+    cfgRef.current = cfg;
     const styles = getComputedStyle(document.documentElement);
     paletteRef.current = [
       resolveColor(styles.getPropertyValue("--primary"), "#8b5cf6"),
@@ -93,20 +124,29 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    const targetCount = () =>
-      Math.min(
-        MAX_NODES,
-        Math.max(80, Math.round((vw * fieldHeight) / AREA_PER_NODE))
+    const targetCount = () => {
+      const cfg = cfgRef.current;
+      return Math.min(
+        cfg.maxNodes,
+        Math.max(40, Math.round((vw * fieldHeight) / cfg.areaPerNode))
       );
+    };
 
-    const makeNode = (): Node => ({
-      x: Math.random() * vw,
-      y: Math.random() * fieldHeight,
-      vx: (Math.random() - 0.5) * 0.22,
-      vy: (Math.random() - 0.5) * 0.22,
-      ci: Math.floor(Math.random() * 3),
-      r: 1.1 + Math.random() * 1.6,
-    });
+    const makeNode = (): Node => {
+      const cfg = cfgRef.current;
+      const yRaw = Math.random() * fieldHeight;
+      const y = cfg.bottomFade
+        ? yRaw * Math.pow(Math.random(), 0.35)
+        : yRaw;
+      return {
+        x: Math.random() * vw,
+        y,
+        vx: (Math.random() - 0.5) * cfg.speed,
+        vy: (Math.random() - 0.5) * cfg.speed,
+        ci: Math.floor(Math.random() * 3),
+        r: (1.1 + Math.random() * 1.6) * cfg.nodeScale,
+      };
+    };
 
     // Grow/shrink the field to match the current document, preserving existing
     // node positions so the constellation never "jumps" as the page settles.
@@ -160,9 +200,10 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
       const offset = window.scrollY * PARALLAX;
       const palette = paletteRef.current;
       const dim = dimRef.current;
+      const cfg = cfgRef.current;
+      const linkDist = cfg.linkDist;
       ctx.clearRect(0, 0, vw, vh);
 
-      // advance positions + collect the nodes currently on-screen
       const visible: { n: Node; sy: number }[] = [];
       for (const n of nodes) {
         if (!reduce) {
@@ -174,10 +215,9 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
           n.y = Math.max(0, Math.min(fieldHeight, n.y));
         }
         const sy = n.y - offset;
-        if (sy > -LINK_DIST && sy < vh + LINK_DIST) visible.push({ n, sy });
+        if (sy > -linkDist && sy < vh + linkDist) visible.push({ n, sy });
       }
 
-      // links among visible nodes (bounded by viewport, not page length)
       for (let i = 0; i < visible.length; i++) {
         const a = visible[i];
         for (let j = i + 1; j < visible.length; j++) {
@@ -185,9 +225,9 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
           const dx = a.n.x - b.n.x;
           const dy = a.sy - b.sy;
           const dist = Math.hypot(dx, dy);
-          if (dist > LINK_DIST) continue;
+          if (dist > linkDist) continue;
 
-          let alpha = (1 - dist / LINK_DIST) * 0.42;
+          let alpha = (1 - dist / linkDist) * cfg.linkAlpha;
           if (pointer.active) {
             const mx = (a.n.x + b.n.x) / 2;
             const my = (a.sy + b.sy) / 2;
@@ -204,7 +244,7 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
         }
       }
 
-      // glowing nodes
+      const gs = cfg.glowScale;
       for (const { n, sy } of visible) {
         const color = palette[n.ci];
         let boost = 0;
@@ -213,12 +253,13 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
           if (pd < CURSOR_RADIUS) boost = 1 - pd / CURSOR_RADIUS;
         }
         const radius = n.r + boost * 1.8;
-        const glow = ctx.createRadialGradient(n.x, sy, 0, n.x, sy, radius * 4.5);
+        const glowR = radius * 4.5 * gs;
+        const glow = ctx.createRadialGradient(n.x, sy, 0, n.x, sy, glowR);
         glow.addColorStop(0, `rgba(${color}, ${(0.6 + boost * 0.4) * dim})`);
         glow.addColorStop(1, `rgba(${color}, 0)`);
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(n.x, sy, radius * 4.5, 0, Math.PI * 2);
+        ctx.arc(n.x, sy, glowR, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = `rgba(${color}, ${(0.9 + boost * 0.1) * dim})`;

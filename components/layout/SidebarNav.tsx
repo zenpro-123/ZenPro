@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { NAV_GROUPS } from "@/config/navigation";
 import { NavTooltip } from "@/components/layout/NavTooltip";
 import { ZenProMark } from "@/components/shared/ZenProMark";
+import { APP_VERSION } from "@/config/app";
 
 interface SidebarNavProps {
   onNavigate?: () => void;
@@ -92,7 +93,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
       </nav>
 
       <div className="px-4 py-4 text-xs text-muted-foreground/40">
-        v1.0
+        v{APP_VERSION}
       </div>
     </div>
   );

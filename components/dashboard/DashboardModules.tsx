@@ -28,6 +28,12 @@ function BusyBanner() {
 /**
  * Client-side dashboard composition. Reads `busyMode` from the UI store and
  * collapses to an executive summary (brief + intel + changes + markets) when on.
+ *
+ * Full layout uses a denser desktop grid to use horizontal space well:
+ *  - Top: the daily hero + flagship intel (wide left) alongside "what changed"
+ *    and market pulse (stacked right).
+ *  - Then full-width feed grids (tech, github) and personalized rows below.
+ * Everything collapses to a single stacked column on mobile.
  */
 export function DashboardModules() {
   const busyMode = useUIStore((s) => s.busyMode);
@@ -68,18 +74,27 @@ export function DashboardModules() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={swap}
-          className="mx-auto max-w-6xl space-y-8"
+          className="mx-auto max-w-7xl space-y-8"
         >
-          <div className={heroWrap}>
-            <GoodMorning />
+          {/* Top: hero + flagship intel (wide left) · changes + markets (right) */}
+          <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3 lg:gap-8">
+            <div className="space-y-6 lg:col-span-2">
+              <GoodMorning />
+              <ThingsYouShouldKnowToday />
+            </div>
+            <div className="flex flex-col gap-6 lg:col-span-1">
+              <WhatChanged />
+              <div className="flex-1">
+                <MarketPulse />
+              </div>
+            </div>
           </div>
-          <div className={heroWrap}>
-            <ThingsYouShouldKnowToday />
-          </div>
-          <WhatChanged />
-          <MarketPulse />
+
+          {/* Middle: full-width feed grids */}
           <TechIntelligence />
           <GitHubRadar />
+
+          {/* Lower: personalized rows */}
           <CareerRadar />
           <RecommendedForYou />
           <SocialPulse />

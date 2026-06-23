@@ -14,6 +14,7 @@ import {
   History,
   Info,
   StickyNote,
+  UserRound,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -154,6 +155,10 @@ export function CommandCenter() {
               <CommandItem onSelect={() => go("/knowledge")}>
                 <FileText className="h-4 w-4" />
                 Knowledge workspace
+              </CommandItem>
+              <CommandItem onSelect={() => go("/profile")}>
+                <UserRound className="h-4 w-4" />
+                View profile
               </CommandItem>
               <CommandItem onSelect={() => { setOpen(false); setAboutOpen(true); }}>
                 <Info className="h-4 w-4" />
