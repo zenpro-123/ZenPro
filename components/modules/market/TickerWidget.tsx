@@ -1,4 +1,5 @@
 import { Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { GlassCard } from "@/components/shared/GlassCard";
 import { cn } from "@/lib/utils";
 import { formatPercent, formatPrice } from "@/lib/utils/formatting";
 import type { MarketItem } from "@/types/market";
@@ -7,7 +8,7 @@ interface TickerWidgetProps {
   item: MarketItem;
 }
 
-/** Single market row — symbol, full name, price, and 24h change. */
+/** Single market ticker — symbol, price, and 24h change as a colored pill. */
 export function TickerWidget({ item }: TickerWidgetProps) {
   const isUp = item.changePercent > 0;
   const isDown = item.changePercent < 0;
@@ -20,25 +21,22 @@ export function TickerWidget({ item }: TickerWidgetProps) {
       : "bg-foreground/5 text-muted-foreground";
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-semibold leading-tight tracking-tight">{item.displaySymbol}</p>
-        <p className="truncate text-[11px] text-muted-foreground">{item.name}</p>
+    <GlassCard className="flex w-full flex-col gap-2 p-3.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="truncate text-[13px] font-semibold tracking-tight">{item.displaySymbol}</span>
+        <Icon className={cn("h-3.5 w-3.5 shrink-0", iconColor)} />
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-1">
-        <span className="text-[13px] font-semibold tabular-nums leading-tight">
-          {formatPrice(item.price, item.currency)}
-        </span>
-        <span
-          className={cn(
-            "inline-flex items-center gap-0.5 rounded px-1.5 py-px text-[10px] font-semibold tabular-nums",
-            pill
-          )}
-        >
-          <Icon className={cn("h-2.5 w-2.5 shrink-0", iconColor)} />
-          {formatPercent(item.changePercent)}
-        </span>
-      </div>
-    </div>
+      <span className="text-lg font-semibold leading-none tabular-nums">
+        {formatPrice(item.price, item.currency)}
+      </span>
+      <span
+        className={cn(
+          "inline-flex w-fit items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold tabular-nums",
+          pill
+        )}
+      >
+        {formatPercent(item.changePercent)}
+      </span>
+    </GlassCard>
   );
 }
