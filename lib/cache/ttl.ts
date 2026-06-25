@@ -1,6 +1,6 @@
 /** Standard cache key/TTL conventions used across providers and the intelligence layer. */
 export const CACHE_TTL = {
-  MARKET: 5 * 60,
+  MARKET: 60 * 60,
   TECH_NEWS: 30 * 60,
   GITHUB_TRENDING: 60 * 60,
   CAREERS: 60 * 60,

@@ -30,13 +30,16 @@ export function MarketPulse() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["content-market"],
     queryFn: fetchMarket,
-    staleTime: 5 * 60 * 1000,
+    // Refresh on a ~1h cadence so an open dashboard stays current without
+    // hammering the providers (only polls while the tab is focused).
+    staleTime: 60 * 60 * 1000,
+    refetchInterval: 60 * 60 * 1000,
   });
 
   const items = data?.data ?? [];
 
   return (
-    <section className="flex h-full flex-col gap-5">
+    <section className="space-y-5">
       <SectionHeader
         icon={LineChart}
         eyebrow="Markets"
@@ -46,7 +49,7 @@ export function MarketPulse() {
 
       {isLoading && (
         <div className="@container">
-          <TickerSkeleton count={7} />
+          <TickerSkeleton count={12} />
         </div>
       )}
 
@@ -60,12 +63,12 @@ export function MarketPulse() {
 
       {items.length > 0 && (
         <>
-          <div className="@container flex-1">
+          <div className="@container">
             <motion.div
               variants={staggerContainer}
               initial="hidden"
               animate="visible"
-              className="grid h-full auto-rows-fr grid-cols-2 gap-3 @sm:grid-cols-3"
+              className="grid grid-cols-2 gap-3 @sm:grid-cols-3"
             >
               {items.map((item) => (
                 <motion.div key={item.symbol} variants={staggerItem}>

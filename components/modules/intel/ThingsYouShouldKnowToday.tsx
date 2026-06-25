@@ -56,9 +56,9 @@ export function ThingsYouShouldKnowToday() {
   );
 
   return (
-    <GlassCard strong className="relative flex h-full flex-col overflow-hidden p-6 sm:p-9">
+    <GlassCard strong className="relative overflow-hidden p-6 sm:p-9">
       <div className="bg-aurora absolute inset-0 opacity-45" />
-      <div className="relative flex-1">
+      <div className="relative">
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
           <span className="eyebrow">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />

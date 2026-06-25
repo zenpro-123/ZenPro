@@ -35,8 +35,23 @@ export function TopDevelopmentCard({ development, index }: TopDevelopmentCardPro
   };
 
   return (
-    <GlassCard className="p-4">
-      <div className="flex items-start gap-3">
+    <GlassCard className="overflow-hidden p-0">
+      {development.imageUrl && (
+        <div className="relative h-36 w-full overflow-hidden sm:h-44">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={development.imageUrl}
+            alt=""
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              (e.currentTarget.parentElement as HTMLElement).style.display = "none";
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
+        </div>
+      )}
+      <div className="flex items-start gap-3 p-4">
         <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
           {index + 1}
         </span>

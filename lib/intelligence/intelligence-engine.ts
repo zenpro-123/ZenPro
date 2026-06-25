@@ -188,6 +188,7 @@ export async function buildTopDevelopments(items: AnyContentItem[]): Promise<Top
       category: primary.category,
       source: primary.source,
       sourceUrl: primary.url,
+      imageUrl: primary.imageUrl ?? undefined,
       relatedSources: cluster.relatedSources.length > 0 ? cluster.relatedSources : undefined,
     };
   });

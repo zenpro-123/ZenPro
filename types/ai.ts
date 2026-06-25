@@ -20,6 +20,7 @@ export interface TopDevelopment {
   category: ContentCategory;
   source: string;
   sourceUrl?: string;
+  imageUrl?: string;
   /** Other sources covering the same story, when clustered. */
   relatedSources?: string[];
 }
