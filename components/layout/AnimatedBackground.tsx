@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { ConstellationField } from "@/components/layout/ConstellationField";
+import { WaveField } from "@/components/layout/WaveField";
 import { useMounted } from "@/lib/hooks/useMounted";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +10,11 @@ export function AnimatedBackground() {
   const { resolvedTheme } = useTheme();
   const mounted = useMounted();
 
+  // Gate BOTH atmospheres on `mounted` so neither shows before next-themes
+  // resolves — otherwise a light-mode user gets a dark-atmosphere flash on load
+  // (the `.dark` class is set pre-paint, so bg-background is already correct).
   const isLight = mounted && resolvedTheme === "light";
+  const isDark = mounted && resolvedTheme !== "light";
 
   return (
     <div
@@ -20,40 +25,32 @@ export function AnimatedBackground() {
       <div
         className={cn(
           "absolute inset-0 transition-opacity duration-700 ease-out",
-          isLight ? "opacity-0" : "opacity-100"
+          isDark ? "opacity-100" : "opacity-0"
         )}
       >
         <div className="bg-mesh-base absolute inset-0" />
         <div className="bg-aurora absolute inset-0 opacity-60" />
       </div>
 
-      {/* Light atmosphere — futuristic dot matrix + drifting spotlight */}
+      {/* Light atmosphere — rippling teal wave lines */}
       <div
         className={cn(
           "absolute inset-0 transition-opacity duration-700 ease-out",
           isLight ? "opacity-100" : "opacity-0"
         )}
       >
-        <div className="bg-dot-grid absolute inset-0" />
-        <div
-          className="glow-pool absolute left-[5%] top-0 h-[70vh] w-[70vh]"
-          style={{ animation: "glow-drift-1 26s ease-in-out infinite", willChange: "transform" }}
-        />
-        <div
-          className="glow-pool absolute right-[8%] top-[20%] h-[55vh] w-[55vh]"
-          style={{ animation: "glow-drift-2 32s ease-in-out infinite", willChange: "transform" }}
-        />
+        {isLight && <WaveField />}
       </div>
 
       {/* Constellation network — dark mode only */}
-      {!isLight && <ConstellationField isLight={false} />}
+      {isDark && <ConstellationField isLight={false} />}
 
       {/* matte film grain — dark only */}
-      <div className={cn("grain absolute inset-0 transition-opacity duration-700", isLight ? "opacity-0" : "opacity-100")} />
+      <div className={cn("grain absolute inset-0 transition-opacity duration-700", isDark ? "opacity-100" : "opacity-0")} />
 
       {/* subtle vignette — dark only */}
       <div
-        className={cn("absolute inset-0 transition-opacity duration-700", isLight ? "opacity-0" : "opacity-100")}
+        className={cn("absolute inset-0 transition-opacity duration-700", isDark ? "opacity-100" : "opacity-0")}
         style={{ backgroundImage: "radial-gradient(ellipse at center, transparent 45%, color-mix(in oklch, var(--background) 80%, transparent) 100%)" }}
       />
     </div>

@@ -97,7 +97,7 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
     cfgRef.current = cfg;
     const styles = getComputedStyle(document.documentElement);
     paletteRef.current = [
-      resolveColor(styles.getPropertyValue("--primary"), "#8b5cf6"),
+      resolveColor(styles.getPropertyValue("--primary"), "#22b8c0"),
       resolveColor(styles.getPropertyValue("--chart-2"), "#34d399"),
       resolveColor(styles.getPropertyValue("--chart-5"), "#22d3ee"),
     ];
@@ -151,10 +151,20 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
     // Grow/shrink the field to match the current document, preserving existing
     // node positions so the constellation never "jumps" as the page settles.
     const syncNodes = () => {
+      const prevHeight = fieldHeight;
       fieldHeight = Math.max(
         document.documentElement.scrollHeight,
         window.innerHeight
       );
+      // When navigating to a SHORTER page the field shrinks; any node now below
+      // it would otherwise be clamped to the bottom edge each frame and pile up
+      // into a clump. Redistribute only those off-field nodes across the new
+      // height so the network stays evenly spread (on-field nodes are untouched).
+      if (fieldHeight < prevHeight) {
+        for (const n of nodes) {
+          if (n.y > fieldHeight) n.y = Math.random() * fieldHeight;
+        }
+      }
       const count = targetCount();
       if (nodes.length < count) {
         for (let i = nodes.length; i < count; i++) nodes.push(makeNode());

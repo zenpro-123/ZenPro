@@ -16,16 +16,17 @@ export function TickerWidget({ item }: TickerWidgetProps) {
   const changeColor = isUp ? "text-positive" : isDown ? "text-negative" : "text-muted-foreground";
 
   return (
-    <GlassCard className="flex h-full w-full flex-col gap-1.5 p-4">
+    <GlassCard className="flex h-full w-full flex-col justify-center gap-1 p-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-semibold tracking-tight">{item.displaySymbol}</span>
-        <Icon className={cn("h-3.5 w-3.5", changeColor)} />
+        <span className="truncate text-xs font-semibold tracking-tight">{item.displaySymbol}</span>
+        <Icon className={cn("h-3 w-3 shrink-0", changeColor)} />
       </div>
-      <span className="text-lg font-semibold tabular-nums">{formatPrice(item.price, item.currency)}</span>
-      <span className={cn("text-xs font-medium tabular-nums", changeColor)}>
+      <span className="text-base font-semibold leading-tight tabular-nums">
+        {formatPrice(item.price, item.currency)}
+      </span>
+      <span className={cn("text-[11px] font-medium tabular-nums", changeColor)}>
         {formatPercent(item.changePercent)}
       </span>
-      <span className="truncate text-xs text-muted-foreground">{item.name}</span>
     </GlassCard>
   );
 }

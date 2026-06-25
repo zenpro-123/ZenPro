@@ -62,25 +62,25 @@
   --card-foreground: oklch(0.20 0.02 280);
   --popover: oklch(0.995 0 0);
   --popover-foreground: oklch(0.20 0.02 280);
-  --primary: oklch(0.548 0.235 292.717);
+  --primary: oklch(0.6 0.125 200);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.955 0.005 280);
   --secondary-foreground: oklch(0.28 0.02 280);
   --muted: oklch(0.955 0.005 280);
   --muted-foreground: oklch(0.48 0.015 280);
-  --accent: oklch(0.95 0.012 292);
+  --accent: oklch(0.95 0.022 200);
   --accent-foreground: oklch(0.28 0.02 280);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.27 0.02 285 / 10%);
   --input: oklch(0.27 0.02 285 / 13%);
-  --ring: oklch(0.548 0.235 292.717);
+  --ring: oklch(0.6 0.125 200);
   --positive: oklch(0.62 0.16 162.48);
   --negative: oklch(0.585 0.22 18.439);
   --warning: oklch(0.705 0.16 70.08);
   --glass: oklch(1 0 0 / 75%);
   --glass-border: oklch(0.2 0.02 280 / 8%);
   --shadow-glass: 0 14px 40px -18px oklch(0.3 0.03 280 / 18%), 0 4px 14px -6px oklch(0.3 0.03 280 / 10%);
-  --chart-1: oklch(0.548 0.235 292.717);
+  --chart-1: oklch(0.6 0.125 200);
   --chart-2: oklch(0.62 0.16 162.48);
   --chart-3: oklch(0.705 0.16 70.08);
   --chart-4: oklch(0.585 0.22 18.439);
@@ -88,12 +88,12 @@
   --radius: 0.85rem;
   --sidebar: oklch(0.975 0 0);
   --sidebar-foreground: oklch(0.20 0.02 280);
-  --sidebar-primary: oklch(0.548 0.235 292.717);
+  --sidebar-primary: oklch(0.6 0.125 200);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.95 0.012 292);
+  --sidebar-accent: oklch(0.95 0.022 200);
   --sidebar-accent-foreground: oklch(0.28 0.02 280);
   --sidebar-border: oklch(0.2 0.02 280 / 8%);
-  --sidebar-ring: oklch(0.548 0.235 292.717);
+  --sidebar-ring: oklch(0.6 0.125 200);
 }
 
 .dark {
@@ -103,7 +103,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.19 0.006 285.82);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.667 0.227 292.717);
+  --primary: oklch(0.72 0.14 198);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.26 0.006 285.82);
   --secondary-foreground: oklch(0.985 0 0);
@@ -114,7 +114,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.667 0.227 292.717);
+  --ring: oklch(0.72 0.14 198);
   --positive: oklch(0.765 0.177 163.223);
   --negative: oklch(0.712 0.194 13.428);
   --warning: oklch(0.828 0.189 84.429);
@@ -122,19 +122,19 @@
   --glass: oklch(0.245 0.007 285.82 / 72%);
   --glass-border: oklch(1 0 0 / 12%);
   --shadow-glass: 0 18px 48px -20px oklch(0 0 0 / 70%), 0 3px 12px -4px oklch(0 0 0 / 50%);
-  --chart-1: oklch(0.667 0.227 292.717);
+  --chart-1: oklch(0.72 0.14 198);
   --chart-2: oklch(0.765 0.177 163.223);
   --chart-3: oklch(0.828 0.189 84.429);
   --chart-4: oklch(0.712 0.194 13.428);
   --chart-5: oklch(0.6 0.118 184.704);
   --sidebar: oklch(0.155 0.006 285.82);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.667 0.227 292.717);
+  --sidebar-primary: oklch(0.72 0.14 198);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.26 0.006 285.82);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.667 0.227 292.717);
+  --sidebar-ring: oklch(0.72 0.14 198);
 }
 
 @layer base {
@@ -213,49 +213,7 @@
   );
 }
 
-/* Light-mode futuristic dot matrix + drifting spotlight ------------------------
-   A faint monochrome dot field with soft glowing pools that slowly drift across,
-   raising local brightness so the dots beneath them "light up." Single brand hue,
-   very low opacity, pure transform animation (GPU-composited). */
-
-@utility bg-dot-grid {
-  --dot-gap: 22px;
-  background-image: radial-gradient(
-    circle,
-    color-mix(in oklch, var(--primary) 42%, transparent) 1.3px,
-    transparent 1.7px
-  );
-  background-size: var(--dot-gap) var(--dot-gap);
-  /* Gently lift dot strength toward the edges; keep the very top calm. */
-  -webkit-mask-image: radial-gradient(ellipse 120% 105% at 50% -5%, transparent 4%, black 48%);
-  mask-image: radial-gradient(ellipse 120% 105% at 50% -5%, transparent 4%, black 48%);
-}
-
-/* Soft radial light pool (the "spotlight") that drifts over the dot field. */
-@utility glow-pool {
-  border-radius: 9999px;
-  background-image: radial-gradient(
-    circle at center,
-    color-mix(in oklch, var(--primary) 22%, transparent) 0%,
-    color-mix(in oklch, var(--primary) 9%, transparent) 38%,
-    transparent 64%
-  );
-}
-
-@keyframes glow-drift-1 {
-  0%, 100% { transform: translate(0, 0); }
-  50%      { transform: translate(38vw, 26vh); }
-}
-@keyframes glow-drift-2 {
-  0%, 100% { transform: translate(0, 0); }
-  50%      { transform: translate(-30vw, 22vh); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .glow-pool {
-    animation: none !important;
-  }
-}
+/* Light-mode rippling wave-lines backdrop is canvas-rendered — see WaveField.tsx. */
 
 /* Fine film grain — tiled SVG turbulence, blended over the mesh for a matte finish. */
 @utility grain {

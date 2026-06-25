@@ -78,9 +78,11 @@ export function DashboardModules() {
         >
           {/* Top: hero + flagship intel (wide left) · changes + markets (right) */}
           <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3 lg:gap-8">
-            <div className="space-y-6 lg:col-span-2">
+            <div className="flex flex-col gap-6 lg:col-span-2">
               <GoodMorning />
-              <ThingsYouShouldKnowToday />
+              <div className="flex-1">
+                <ThingsYouShouldKnowToday />
+              </div>
             </div>
             <div className="flex flex-col gap-6 lg:col-span-1">
               <WhatChanged />

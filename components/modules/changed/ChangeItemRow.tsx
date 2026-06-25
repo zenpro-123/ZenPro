@@ -49,7 +49,9 @@ export function ChangeItemRow({ change }: ChangeItemRowProps) {
           <h3 className="text-sm font-medium leading-snug">{change.title}</h3>
           {change.url && <ArrowUpRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
         </div>
-        <p className="text-sm leading-relaxed text-muted-foreground">{change.explanation}</p>
+        {change.explanation && change.explanation !== change.title && (
+          <p className="text-sm leading-relaxed text-muted-foreground">{change.explanation}</p>
+        )}
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <TrendBadge direction={directionFor(change)} />
           <ImpactBadge impact={change.impact} />

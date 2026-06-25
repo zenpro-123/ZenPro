@@ -33,10 +33,13 @@ export const MARKET_SYMBOLS = {
     { symbol: "^BSESN", displaySymbol: "SENSEX", name: "BSE Sensex" },
     { symbol: "^NSEBANK", displaySymbol: "NIFTY BANK", name: "Nifty Bank" },
     { symbol: "^IXIC", displaySymbol: "NASDAQ", name: "Nasdaq Composite" },
+    { symbol: "^GSPC", displaySymbol: "S&P 500", name: "S&P 500" },
+    { symbol: "^DJI", displaySymbol: "DOW", name: "Dow Jones" },
   ],
   commodities: [
     { symbol: "GC=F", displaySymbol: "GOLD", name: "Gold Futures" },
     { symbol: "SI=F", displaySymbol: "SILVER", name: "Silver Futures" },
+    { symbol: "CL=F", displaySymbol: "CRUDE", name: "Crude Oil" },
   ],
   forex: [{ symbol: "INR=X", displaySymbol: "USD/INR", name: "US Dollar / Indian Rupee" }],
 } as const;

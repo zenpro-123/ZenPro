@@ -45,12 +45,12 @@ export function SocialPulse() {
           icon={Radio}
           eyebrow="Social"
           title="Social Pulse"
-          subtitle="What's trending on X and Instagram"
+          subtitle="What's blowing up on X and Instagram right now"
         />
         <EmptyState
           icon={Radio}
           title="Coming in V2"
-          description="X and Instagram providers are wired into the architecture and ready to go — they activate once API credentials and scraping infrastructure are configured."
+          description="The viral threads, the spiciest takes, and the creators blowing up overnight — every big moment on X and Instagram, surfaced before it floods your feed. Don't be the last to know."
         />
       </section>
     );
@@ -64,7 +64,7 @@ export function SocialPulse() {
         icon={Radio}
         eyebrow="Social"
         title="Social Pulse"
-        subtitle="What's trending on X and Instagram"
+        subtitle="What's blowing up on X and Instagram right now"
       />
 
       {isLoading && <CardGridSkeleton count={3} />}

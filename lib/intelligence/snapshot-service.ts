@@ -7,6 +7,7 @@ import { redditTrendsProvider } from "@/lib/providers/social/reddit";
 import { buildTopDevelopments } from "@/lib/intelligence/intelligence-engine";
 import { generateMarketInsight } from "@/lib/ai/market-insight";
 import { withCache, CACHE_TTL } from "@/lib/cache";
+import { stripFeedBoilerplate } from "@/lib/utils/formatting";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import type { DailySnapshot, SnapshotRepo, SnapshotOpportunity, SnapshotTrend } from "@/types/intelligence";
 import type { TopDevelopment } from "@/types/ai";
@@ -35,8 +36,23 @@ function todayDate(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function mapRow(row: DailySnapshotRow): DailySnapshot {
+/** Defensively strip feed boilerplate from a snapshot's story descriptions so
+ *  snapshots persisted/cached before the ingest-time fix still render clean (no
+ *  DB rewrite needed). If a description was *only* boilerplate, fall back to the
+ *  title. Applied at every read boundary — including the cache layer, which can
+ *  hold pre-fix data that bypasses `mapRow`. Safe/idempotent on clean text. */
+function sanitizeSnapshot(snapshot: DailySnapshot): DailySnapshot {
   return {
+    ...snapshot,
+    topStories: snapshot.topStories.map((s) => {
+      const cleaned = stripFeedBoilerplate(s.whatHappened);
+      return { ...s, whatHappened: cleaned || s.title };
+    }),
+  };
+}
+
+function mapRow(row: DailySnapshotRow): DailySnapshot {
+  return sanitizeSnapshot({
     date: row.snapshot_date,
     topStories: row.top_stories,
     trends: row.trends,
@@ -44,7 +60,7 @@ function mapRow(row: DailySnapshotRow): DailySnapshot {
     opportunities: row.opportunities,
     marketSummary: row.market_summary,
     generatedAt: row.generated_at,
-  };
+  });
 }
 
 function toContentItemRow(item: AnyContentItem) {
@@ -224,9 +240,13 @@ export async function listSnapshots(
 export async function getOrCreateTodaySnapshot(): Promise<{ data: DailySnapshot; cached: boolean }> {
   const date = todayDate();
 
-  return withCache(`snapshot:${date}`, CACHE_TTL.SNAPSHOT, async () => {
+  const result = await withCache(`snapshot:${date}`, CACHE_TTL.SNAPSHOT, async () => {
     const existing = await getSnapshot(date);
     if (existing) return existing;
     return generateSnapshot(date);
   });
+
+  // Sanitize on the way out so cache-layer hits (which bypass mapRow and may hold
+  // pre-fix data) also render clean.
+  return { ...result, data: sanitizeSnapshot(result.data) };
 }

@@ -77,18 +77,47 @@ function decodeEntities(text: string): string {
   return text.replace(/&[#\w]+;/g, (m) => HTML_ENTITIES[m.toLowerCase()] ?? m);
 }
 
+/** Plain-text boilerplate the Hacker News feed puts in every `<description>`
+ *  (`Article URL: … Comments URL: … Points: … # Comments: …`). It isn't HTML, so
+ *  tag-stripping leaves it intact — remove the tokens explicitly. For pure link
+ *  posts this empties the summary, and callers fall back to the title. */
+const FEED_BOILERPLATE = [
+  /Article URL:\s*\S+/gi,
+  /Comments URL:\s*\S+/gi,
+  /Points:\s*\d+/gi,
+  /#\s*Comments:\s*\d+/gi,
+];
+
+/** The Hacker News block is always signposted by these URL labels — gate the
+ *  token removal on them so prose that merely contains "Points:" / "# Comments:"
+ *  in other feeds is never mangled. */
+const HN_SIGNATURE = /\b(?:Article|Comments) URL:/i;
+
+/** Remove feed boilerplate tokens (Hacker News only) and collapse whitespace.
+ *  Null-safe and a no-op on already-clean text. Used both at ingest
+ *  (`cleanSummary`) and at read time so previously-stored snapshots render clean
+ *  without a DB rewrite. */
+export function stripFeedBoilerplate(text: string | null | undefined): string {
+  let out = text ?? "";
+  if (HN_SIGNATURE.test(out)) {
+    for (const pattern of FEED_BOILERPLATE) out = out.replace(pattern, " ");
+  }
+  return out.replace(/\s+/g, " ").trim();
+}
+
 /**
  * Clean an RSS/HTML snippet into a display-safe plain-text summary. Removes
  * `<script>`/`<style>` blocks (and any inline JS config that leaks through
- * pre-stripped feeds like The Verge), decodes common entities, collapses
- * whitespace, and truncates on a word boundary.
+ * pre-stripped feeds like The Verge), strips feed boilerplate (Hacker News),
+ * decodes common entities, collapses whitespace, and truncates on a word
+ * boundary.
  */
 export function cleanSummary(input: string, maxLength = 320): string {
-  const text = decodeEntities(
-    input.replace(SCRIPT_STYLE_BLOCK, " ").replace(/<[^>]*>/g, " ")
-  )
-    .replace(INLINE_JS_CONFIG, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const text = stripFeedBoilerplate(
+    decodeEntities(input.replace(SCRIPT_STYLE_BLOCK, " ").replace(/<[^>]*>/g, " ")).replace(
+      INLINE_JS_CONFIG,
+      " "
+    )
+  );
   return truncate(text, maxLength);
 }
