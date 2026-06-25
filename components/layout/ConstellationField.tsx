@@ -111,17 +111,27 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let vw = 0;
     let fieldHeight = 0;
     const nodes: Node[] = [];
 
     const sizeCanvas = () => {
+      const prevVw = vw;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
       vw = window.innerWidth;
       const vh = window.innerHeight;
       canvas.width = Math.floor(vw * dpr);
       canvas.height = Math.floor(vh * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // Scatter nodes that are now outside the narrower viewport BEFORE the
+      // draw loop runs — otherwise the draw loop clamps them all to x=vw
+      // (right edge) and syncNodes() sees nothing to fix 200ms later.
+      if (vw < prevVw) {
+        for (const n of nodes) {
+          if (n.x > vw) n.x = Math.random() * vw;
+        }
+      }
     };
 
     const targetCount = () => {
@@ -176,18 +186,19 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
     sizeCanvas();
     syncNodes();
 
-    // re-sync when the viewport or document height changes (debounced)
+    // re-sync when the viewport or document height changes.
+    // sizeCanvas() fires immediately so the pixel buffer always matches the CSS
+    // element size — no stretched/smeared frames during a drag resize.
+    // syncNodes() is debounced because it recounts nodes across the full field.
     let rebuildTimer = 0;
-    const scheduleRebuild = () => {
+    const onResize = () => {
+      sizeCanvas();
       window.clearTimeout(rebuildTimer);
-      rebuildTimer = window.setTimeout(() => {
-        sizeCanvas();
-        syncNodes();
-      }, 150);
+      rebuildTimer = window.setTimeout(syncNodes, 200);
     };
-    const ro = new ResizeObserver(scheduleRebuild);
+    const ro = new ResizeObserver(onResize);
     ro.observe(document.body);
-    window.addEventListener("resize", scheduleRebuild);
+    window.addEventListener("resize", onResize);
 
     // pointer (canvas is pointer-events-none, so listen on window)
     const pointer = { x: -9999, y: -9999, active: false };
@@ -309,7 +320,7 @@ export function ConstellationField({ isLight = false }: ConstellationFieldProps)
       cancelAnimationFrame(raf);
       window.clearTimeout(rebuildTimer);
       ro.disconnect();
-      window.removeEventListener("resize", scheduleRebuild);
+      window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerleave", onLeave);
